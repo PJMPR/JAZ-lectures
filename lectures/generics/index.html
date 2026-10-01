@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wykład Java 21: typy generyczne, wildcardy i zasada PECS.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // Generyki i wildcardy</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej">
+      <span class="brand-mark" aria-hidden="true">J//21</span>
+      <span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // GENERICS</small></span>
+    </a>
+    <div class="telemetry" aria-hidden="true">
+      <span>SYS <b>ONLINE</b></span><span>TYPE SAFETY <b>100%</b></span>
+    </div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">11</span></div>
+  </header>
+
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 01 // 45 MIN // JAVA 21</div>
+      <div class="hero-grid">
+        <div>
+          <p class="kicker">SYSTEM TYPÓW: ROZSZERZENIE AKTYWNE</p>
+          <h1 id="intro-title">Generyki<br><em>&amp; wildcardy</em></h1>
+          <p class="lead">Jak pisać kod wielokrotnego użytku, zachowując kontrolę typów już podczas kompilacji.</p>
+          <div class="objectives">
+            <span>Po wykładzie:</span>
+            <ul>
+              <li>utworzysz klasę i metodę generyczną,</li>
+              <li>dobierzesz ograniczenie typu,</li>
+              <li>zastosujesz <code>extends</code>, <code>super</code> i PECS.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="reactor" aria-hidden="true">
+          <div class="ring ring-a"></div><div class="ring ring-b"></div><div class="core">T</div>
+          <span class="orbit o1">E</span><span class="orbit o2">K</span><span class="orbit o3">V</span>
+        </div>
+      </div>
+      <aside class="speaker-note">Start: pokaż, że parametr typu działa jak wejście konfiguracyjne dla klasy lub metody.</aside>
+    </section>
+
+    <section class="slide" id="problem" data-title="Problem" aria-labelledby="problem-title">
+      <div class="eyebrow">01 // PROBLEM</div>
+      <h2 id="problem-title">Gdy wszystko jest <code>Object</code></h2>
+      <div class="two-col">
+        <div>
+          <p>Bez generyków kolekcja nie mówi, co może zawierać. Błąd ukrywa się aż do uruchomienia programu.</p>
+          <div class="callout danger"><strong>Alarm:</strong> kompilator przyjmuje kod, ale rzutowanie może zakończyć się <code>ClassCastException</code>.</div>
+        </div>
+        <div class="code-panel">
+          <div class="code-head"><span>BeforeGenerics.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+          <pre><code><span class="kw">List</span> values = <span class="kw">new</span> ArrayList();
+values.add(<span class="str">"Ala"</span>);
+values.add(<span class="num">42</span>);
+
+<span class="kw">String</span> name = (<span class="kw">String</span>) values.get(<span class="num">1</span>);
+<span class="cm">// ClassCastException podczas działania</span></code></pre>
+        </div>
+      </div>
+      <div class="question"><span>Pytanie do sali</span> W którym momencie najlepiej wykryć ten błąd?</div>
+    </section>
+
+    <section class="slide" id="generic-class" data-title="Klasa generyczna" aria-labelledby="class-title">
+      <div class="eyebrow">02 // KLASA GENERYCZNA</div>
+      <h2 id="class-title">Typ jako parametr</h2>
+      <div class="two-col code-heavy">
+        <div class="code-panel">
+          <div class="code-head"><span>Box.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+          <pre><code><span class="kw">public class</span> Box&lt;T&gt; {
+    <span class="kw">private final</span> T value;
+
+    <span class="kw">public</span> Box(T value) {
+        <span class="kw">this</span>.value = value;
+    }
+
+    <span class="kw">public</span> T get() {
+        <span class="kw">return</span> value;
+    }
+}</code></pre>
+        </div>
+        <div>
+          <div class="type-map">
+            <span><b>T</b> type</span><span><b>E</b> element</span><span><b>K</b> key</span><span><b>V</b> value</span>
+          </div>
+          <p><code>T</code> jest symbolem zastępowanym konkretnym typem podczas użycia klasy.</p>
+          <div class="code-panel compact"><pre><code>Box&lt;String&gt; box = <span class="kw">new</span> Box&lt;&gt;(<span class="str">"sygnał"</span>);
+String signal = box.get(); <span class="cm">// bez rzutowania</span></code></pre></div>
+          <p class="hint">Operator diamentowy <code>&lt;&gt;</code> pozwala kompilatorowi wywnioskować typ.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="generic-method" data-title="Metoda generyczna" aria-labelledby="method-title">
+      <div class="eyebrow">03 // METODA GENERYCZNA</div>
+      <h2 id="method-title">Metoda ma własny parametr typu</h2>
+      <div class="two-col">
+        <div class="code-panel">
+          <div class="code-head"><span>ArrayUtils.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+          <pre><code><span class="kw">public static</span> &lt;T&gt; T first(T[] items) {
+    <span class="kw">if</span> (items.length == <span class="num">0</span>) {
+        <span class="kw">throw new</span> IllegalArgumentException(
+            <span class="str">"Array must not be empty"</span>);
+    }
+    <span class="kw">return</span> items[<span class="num">0</span>];
+}</code></pre>
+        </div>
+        <div>
+          <p>Deklaracja <code>&lt;T&gt;</code> znajduje się <strong>przed typem zwracanym</strong>. Metoda może należeć również do klasy, która sama nie jest generyczna.</p>
+          <div class="callout"><strong>Wnioskowanie:</strong> dla argumentu <code>String[]</code> kompilator ustali, że <code>T</code> oznacza <code>String</code>.</div>
+          <div class="code-panel compact"><pre><code>String first = ArrayUtils.first(names);code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="bounds" data-title="Ograniczenia" aria-labelledby="bounds-title">
+      <div class="eyebrow">04 // BOUNDED TYPE PARAMETERS</div>
+      <h2 id="bounds-title">Nie każdy typ pasuje do misji</h2>
+      <div class="two-col">
+        <div>
+          <p>Ograniczenie daje kompilatorowi gwarancję, że obiekt posiada określone metody.</p>
+          <div class="syntax"><span>&lt;T <b>extends</b> Number&gt;</span><small>T musi być klasą Number lub jej podtypem</small></div>
+          <div class="callout warning"><strong>Ważne:</strong> słowa <code>extends</code> używamy także dla ograniczenia interfejsem.</div>
+        </div>
+        <div class="code-panel">
+          <div class="code-head"><span>Numbers.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+          <pre><code><span class="kw">public static</span> &lt;T <span class="kw">extends</span> Number&gt;
+<span class="kw">double</span> doubleValue(T number) {
+    <span class="kw">return</span> number.doubleValue();
+}
+
+doubleValue(Integer.valueOf(<span class="num">7</span>)); <span class="cm">// OK</span>
+doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// OK</span>
+<span class="cm">// doubleValue("7"); // nie skompiluje się</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="invariance" data-title="Niezmienniczość" aria-labelledby="invariance-title">
+      <div class="eyebrow">05 // INVARIANCE</div>
+      <h2 id="invariance-title"><code>List&lt;Integer&gt;</code> to nie <code>List&lt;Number&gt;</code></h2>
+      <div class="two-col">
+        <div class="code-panel">
+          <div class="code-head"><span>WhyNot.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+          <pre><code>List&lt;Integer&gt; integers = <span class="kw">new</span> ArrayList&lt;&gt;();
+
+<span class="cm">// Błąd kompilacji:</span>
+<span class="cm">// List&lt;Number&gt; numbers = integers;</span>
+
+<span class="cm">// Gdyby było to dozwolone:</span>
+<span class="cm">// numbers.add(Double.valueOf(2.5));</span>
+<span class="cm">// integers zawierałaby Double!</span></code></pre>
+        </div>
+        <div>
+          <p>Choć <code>Integer</code> dziedziczy po <code>Number</code>, relacja ta nie przenosi się automatycznie na ich listy.</p>
+          <div class="signal-diagram" aria-label="Integer dziedziczy po Number, ale lista Integer nie dziedziczy po liście Number">
+            <span>Integer</span><i>→</i><span>Number</span>
+            <span>List&lt;Integer&gt;</span><i class="blocked">↛</i><span>List&lt;Number&gt;</span>
+          </div>
+          <p class="hint">Do elastycznego odczytu lub zapisu służą wildcardy.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="wildcards" data-title="Wildcardy" aria-labelledby="wildcards-title">
+      <div class="eyebrow">06 // WILDCARDS</div>
+      <h2 id="wildcards-title">Trzy poziomy dostępu</h2>
+      <div class="cards three">
+        <article><span class="card-code">List&lt;?&gt;</span><h3>Nieznany typ</h3><p>Bezpiecznie odczytasz jako <code>Object</code>. Nie dodasz wartości poza <code>null</code>.</p></article>
+        <article><span class="card-code">List&lt;? extends Number&gt;</span><h3>Producent</h3><p>Bezpiecznie odczytasz <code>Number</code>. Nie wiesz jednak, jaki dokładnie podtyp lista przyjmuje.</p></article>
+        <article><span class="card-code">List&lt;? super Integer&gt;</span><h3>Konsument</h3><p>Bezpiecznie dodasz <code>Integer</code>. Odczyt ma jedynie gwarantowany typ <code>Object</code>.</p></article>
+      </div>
+      <div class="question"><span>Zapamiętaj</span> Wildcard opisuje elastyczny typ argumentu, a nie nowy nazwany parametr typu.</div>
+    </section>
+
+    <section class="slide" id="pecs" data-title="PECS" aria-labelledby="pecs-title">
+      <div class="eyebrow">07 // PECS PROTOCOL</div>
+      <h2 id="pecs-title">Producer Extends, Consumer Super</h2>
+      <div class="two-col code-heavy">
+        <div class="code-panel">
+          <div class="code-head"><span>Copy.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+          <pre><code><span class="kw">public static</span> &lt;T&gt; <span class="kw">void</span> copy(
+        List&lt;? <span class="kw">extends</span> T&gt; source,
+        List&lt;? <span class="kw">super</span> T&gt; destination) {
+
+    <span class="kw">for</span> (T item : source) {
+        destination.add(item);
+    }
+}</code></pre>
+        </div>
+        <div class="pecs-flow">
+          <div><span>PRODUCER</span><strong>? extends T</strong><small>źródło produkuje wartości T</small></div>
+          <i>TRANSFER →</i>
+          <div><span>CONSUMER</span><strong>? super T</strong><small>cel konsumuje wartości T</small></div>
+          <p><b>PECS</b> dotyczy roli parametru. Jeśli jednocześnie odczytujesz i zapisujesz, często potrzebujesz konkretnego <code>List&lt;T&gt;</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="live-coding" data-title="Live coding" aria-labelledby="live-title">
+      <div class="eyebrow">08 // LIVE CODING // 8 MIN</div>
+      <h2 id="live-title">System przesyłania ładunku</h2>
+      <div class="two-col">
+        <div>
+          <ol class="mission-list">
+            <li>Zmień metodę <code>transfer</code> w metodę generyczną.</li>
+            <li>Źródło ma produkować elementy typu <code>T</code>.</li>
+            <li>Cel ma konsumować elementy typu <code>T</code>.</li>
+            <li>Uruchom program i sprawdź wynik.</li>
+          </ol>
+          <p class="path">examples/generics-examples/src/main/java/…/livecoding/CargoTransfer.java</p>
+        </div>
+        <div>
+          <div class="code-panel">
+            <div class="code-head"><span>CargoTransfer.java</span><button class="copy-btn" type="button">Kopiuj</button></div>
+            <pre><code><span class="kw">public static void</span> transfer(
+        List&lt;Integer&gt; source,
+        List&lt;Number&gt; destination) {
+    <span class="cm">// TODO: uogólnij sygnaturę</span>
+}</code></pre>
+          </div>
+          <button class="reveal-btn" type="button" aria-expanded="false" data-target="live-solution">Pokaż rozwiązanie</button>
+          <div class="reveal" id="live-solution" hidden>
+            <code>&lt;T&gt; void transfer(List&lt;? extends T&gt; source, List&lt;? super T&gt; destination)</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="erasure" data-title="Type erasure" aria-labelledby="erasure-title">
+      <div class="eyebrow">09 // TYPE ERASURE</div>
+      <h2 id="erasure-title">Po kompilacji parametr znika</h2>
+      <div class="cards three restrictions">
+        <article><span>01</span><h3>Brak <code>new T()</code></h3><p>JVM nie zna konkretnego typu T. Fabrykę lub konstruktor trzeba przekazać jawnie.</p></article>
+        <article><span>02</span><h3>Brak <code>T.class</code></h3><p>Informację o klasie można przekazać jako parametr <code>Class&lt;T&gt;</code>.</p></article>
+        <article><span>03</span><h3>Brak typów prostych</h3><p>Używamy <code>Integer</code>, nie <code>int</code>; <code>Double</code>, nie <code>double</code>.</p></article>
+      </div>
+      <div class="callout"><strong>Konsekwencja:</strong> w czasie działania zwykle nie odróżnisz <code>List&lt;String&gt;</code> od <code>List&lt;Integer&gt;</code>.</div>
+    </section>
+
+    <section class="slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title">
+      <div class="eyebrow">10 // CHECKPOINT</div>
+      <h2 id="quiz-title">Sprawdzenie systemów</h2>
+      <div class="quiz-grid">
+        <article><h3>1. Odczyt liczb</h3><p>Jaki parametr przyjmie listę <code>Integer</code> i <code>Double</code>, jeśli tylko z niej czytamy?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>List&lt;? extends Number&gt;</code></div></article>
+        <article><h3>2. Zapis liczb całkowitych</h3><p>Jaki parametr pozwoli dodawać <code>Integer</code> do listy <code>Integer</code>, <code>Number</code> lub <code>Object</code>?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>List&lt;? super Integer&gt;</code></div></article>
+        <article><h3>3. Parametr czy wildcard?</h3><p>Co wybrać, gdy ten sam typ musi wystąpić w kilku miejscach sygnatury?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden>Parametr typu, np. <code>&lt;T&gt;</code>.</div></article>
+      </div>
+      <div class="final-line"><strong>GENERYKI</strong> = ponowne użycie kodu + bezpieczeństwo typów + mniej rzutowania</div>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów">
+    <button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button>
+    <div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div>
+    <button id="next" type="button"><span>Dalej</span> →</button>
+  </nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
