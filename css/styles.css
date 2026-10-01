@@ -134,6 +134,15 @@ pre code { color: #d8e7e9; }
 .restrictions article > span { color: var(--orange); font: .7rem "JetBrains Mono"; }
 .quiz-grid { display: grid; gap: 1rem; }.quiz-grid h3 { color: var(--cyan); }.quiz-grid article { display: flex; flex-direction: column; }.quiz-grid .reveal-btn { margin-top: auto; align-self: start; }
 .final-line { color: var(--muted); letter-spacing: .08em; text-align: center; }.final-line strong { color: var(--orange); }
+.example-slide { background: radial-gradient(circle at 82% 50%, rgba(255,122,56,.055), transparent 30%); }
+.example-slide::after { content: "CODE ANALYSIS"; position: absolute; right: 3.5%; bottom: 9%; z-index: -1; color: rgba(255,122,56,.055); font: 700 clamp(2.5rem, 6vw, 6rem) "JetBrains Mono"; letter-spacing: -.08em; }
+.analysis-panel { padding: clamp(1.2rem, 2.2vw, 2rem); border: 1px solid rgba(255,122,56,.32); background: linear-gradient(145deg, rgba(30,24,20,.72), rgba(7,17,22,.92)); box-shadow: 0 0 28px rgba(255,122,56,.06); }
+.analysis-panel h3 { margin: .65rem 0 1.2rem; color: var(--text); font-size: clamp(1.2rem, 2vw, 1.8rem); }
+.analysis-panel ol { margin: 0; padding-left: 1.3rem; color: #b9c9cd; line-height: 1.65; }
+.analysis-panel li { padding-left: .35rem; margin-bottom: .55rem; }.analysis-panel li::marker { color: var(--orange); font-family: "JetBrains Mono"; }
+.analysis-label { color: var(--orange); font: 600 .67rem "JetBrains Mono"; letter-spacing: .15em; }
+.analysis-answer { margin-top: 1.2rem; padding: .8rem 1rem; border-left: 2px solid var(--cyan); background: rgba(87,240,242,.07); color: #d5e7e9; overflow-wrap: anywhere; }
+.mission-brief p { color: #c3d1d4; }
 
 .controls { position: fixed; z-index: 30; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1rem; }
 .controls > button { border: 1px solid var(--line); background: rgba(6,18,23,.95); padding: .55rem .85rem; cursor: pointer; color: var(--cyan); }
@@ -150,8 +159,10 @@ pre code { color: #d8e7e9; }
   .hero-grid { margin-top: 5vh; }
   .cards article, .quiz-grid article { padding: 1rem; }
   .slide::before { display: none; }
+  .example-slide::after { display: none; }
   h1 { font-size: clamp(2.8rem, 14vw, 5rem); }
   .controls > button span, .key-help { display: none; }
+  .slide-dots { max-width: 45vw; flex-wrap: wrap; justify-content: center; }
 }
 @media (max-height: 720px) and (min-width: 901px) {
   .slide { padding-top: 1.5rem; padding-bottom: 4rem; gap: .8rem; }

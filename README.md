@@ -12,11 +12,13 @@ np. z poziomu IDE. Nawigacja działa klawiszami strzałek, `Home`, `End`; klawis
 
 ## Publikacja na GitHub Pages
 
-Po wysłaniu plików do repozytorium wybierz w ustawieniach GitHub:
+Workflow `.github/workflows/deploy-pages.yml` publikuje stronę automatycznie po każdym wysłaniu
+zmian na gałąź `main`. Można go również uruchomić ręcznie z zakładki **Actions**.
 
-1. **Settings → Pages**,
-2. **Deploy from a branch**,
-3. gałąź `main` i katalog `/ (root)`.
+Przy pierwszym wdrożeniu wybierz w repozytorium **Settings → Pages → Source → GitHub Actions**.
+Po zakończeniu akcji portal będzie dostępny pod adresem:
+
+`https://pjmpr.github.io/JAZ-lectures/`
 
 Pliki używają ścieżek względnych, więc strona działa również w repozytorium projektowym
 pod adresem `https://<użytkownik>.github.io/<repozytorium>/`.

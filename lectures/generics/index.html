@@ -20,7 +20,7 @@
     <div class="telemetry" aria-hidden="true">
       <span>SYS <b>ONLINE</b></span><span>TYPE SAFETY <b>100%</b></span>
     </div>
-    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">11</span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">22</span></div>
   </header>
 
   <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
@@ -50,6 +50,19 @@
       <aside class="speaker-note">Start: pokaż, że parametr typu działa jak wejście konfiguracyjne dla klasy lub metody.</aside>
     </section>
 
+    <section class="slide example-slide" id="intro-example" data-title="Przykład 00" aria-labelledby="intro-example-title">
+      <div class="eyebrow">PRZYKŁAD 00 // ROZGRZEWKA</div>
+      <h2 id="intro-example-title">Co mówi nam sygnatura?</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Inventory.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;String&gt; pilots = <span class="kw">new</span> ArrayList&lt;&gt;();
+pilots.add(<span class="str">"Amelia"</span>);
+
+String pilot = pilots.get(<span class="num">0</span>);
+<span class="cm">// pilots.add(42); // błąd kompilacji</span></code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">DO ANALIZY</span><h3>Trzy gwarancje</h3><ol><li>Jakiego typu elementy przyjmuje lista?</li><li>Dlaczego nie potrzebujemy rzutowania?</li><li>Która linia nie przejdzie kompilacji i dlaczego?</li></ol><p class="hint">To przykład użycia istniejącego typu generycznego — jeszcze nie tworzymy własnego.</p></div>
+      </div>
+    </section>
+
     <section class="slide" id="problem" data-title="Problem" aria-labelledby="problem-title">
       <div class="eyebrow">01 // PROBLEM</div>
       <h2 id="problem-title">Gdy wszystko jest <code>Object</code></h2>
@@ -69,6 +82,22 @@ values.add(<span class="num">42</span>);
         </div>
       </div>
       <div class="question"><span>Pytanie do sali</span> W którym momencie najlepiej wykryć ten błąd?</div>
+    </section>
+
+    <section class="slide example-slide" id="problem-example" data-title="Przykład 01" aria-labelledby="problem-example-title">
+      <div class="eyebrow">PRZYKŁAD 01 // ZNAJDŹ BŁĄD</div>
+      <h2 id="problem-example-title">Kompilator nie zna zawartości</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>LegacyQueue.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List queue = <span class="kw">new</span> ArrayList();
+queue.add(<span class="str">"MESSAGE"</span>);
+queue.add(Integer.valueOf(<span class="num">404</span>));
+
+<span class="kw">for</span> (Object item : queue) {
+    String text = (String) item;
+    System.out.println(text.toLowerCase());
+}</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">PYTANIA</span><h3>Prześledź drugą iterację</h3><ol><li>Jaki rzeczywisty typ ma <code>item</code>?</li><li>Czy błąd pojawi się przy <code>add</code>, czy przy rzutowaniu?</li><li>Jak zmienić deklarację, by błąd wykrył kompilator?</li></ol><div class="analysis-answer"><code>List&lt;String&gt; queue = new ArrayList&lt;&gt;();</code></div></div>
+      </div>
     </section>
 
     <section class="slide" id="generic-class" data-title="Klasa generyczna" aria-labelledby="class-title">
@@ -101,6 +130,21 @@ String signal = box.get(); <span class="cm">// bez rzutowania</span></code></pre
       </div>
     </section>
 
+    <section class="slide example-slide" id="generic-class-example" data-title="Przykład 02" aria-labelledby="generic-class-example-title">
+      <div class="eyebrow">PRZYKŁAD 02 // DWA TYPY</div>
+      <h2 id="generic-class-example-title">Para klucza i wartości</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Pair.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">public record</span> Pair&lt;K, V&gt;(K key, V value) { }
+
+Pair&lt;String, Integer&gt; score =
+    <span class="kw">new</span> Pair&lt;&gt;(<span class="str">"team-blue"</span>, <span class="num">120</span>);
+
+String team = score.key();
+Integer points = score.value();</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">DO ANALIZY</span><h3>Więcej niż jeden parametr</h3><ol><li>Co oznaczają tutaj <code>K</code> oraz <code>V</code>?</li><li>Skąd konstruktor zna konkretne typy?</li><li>Czy można utworzyć <code>Pair&lt;Integer, String&gt;</code>?</li></ol><p class="hint">Nazwy parametrów są umowne, ale standardowe oznaczenia ułatwiają czytanie API.</p></div>
+      </div>
+    </section>
+
     <section class="slide" id="generic-method" data-title="Metoda generyczna" aria-labelledby="method-title">
       <div class="eyebrow">03 // METODA GENERYCZNA</div>
       <h2 id="method-title">Metoda ma własny parametr typu</h2>
@@ -120,6 +164,23 @@ String signal = box.get(); <span class="cm">// bez rzutowania</span></code></pre
           <div class="callout"><strong>Wnioskowanie:</strong> dla argumentu <code>String[]</code> kompilator ustali, że <code>T</code> oznacza <code>String</code>.</div>
           <div class="code-panel compact"><pre><code>String first = ArrayUtils.first(names);code></pre></div>
         </div>
+      </div>
+    </section>
+
+    <section class="slide example-slide" id="generic-method-example" data-title="Przykład 03" aria-labelledby="generic-method-example-title">
+      <div class="eyebrow">PRZYKŁAD 03 // WYMIANA WARTOŚCI</div>
+      <h2 id="generic-method-example-title">Jedna metoda, różne tablice</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Arrays.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">public static</span> &lt;T&gt; <span class="kw">void</span> swap(
+        T[] array, <span class="kw">int</span> left, <span class="kw">int</span> right) {
+    T temporary = array[left];
+    array[left] = array[right];
+    array[right] = temporary;
+}
+
+swap(names, <span class="num">0</span>, <span class="num">1</span>);
+swap(numbers, <span class="num">1</span>, <span class="num">2</span>);</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">PYTANIA</span><h3>Gdzie ustalany jest typ?</h3><ol><li>Jakie <code>T</code> zostanie wybrane dla <code>String[]</code>?</li><li>Czy element z innej tablicy da się przypisać?</li><li>Dlaczego metoda zwraca <code>void</code>?</li></ol></div>
       </div>
     </section>
 
@@ -143,6 +204,23 @@ doubleValue(Integer.valueOf(<span class="num">7</span>)); <span class="cm">// OK
 doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// OK</span>
 <span class="cm">// doubleValue("7"); // nie skompiluje się</span></code></pre>
         </div>
+      </div>
+    </section>
+
+    <section class="slide example-slide" id="bounds-example" data-title="Przykład 04" aria-labelledby="bounds-example-title">
+      <div class="eyebrow">PRZYKŁAD 04 // OGRANICZENIE INTERFEJSEM</div>
+      <h2 id="bounds-example-title">Wybieramy większą wartość</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Maximum.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">public static</span> &lt;T <span class="kw">extends</span> Comparable&lt;T&gt;&gt;
+T max(T first, T second) {
+    <span class="kw">if</span> (first.compareTo(second) &gt;= <span class="num">0</span>) {
+        <span class="kw">return</span> first;
+    }
+    <span class="kw">return</span> second;
+}
+
+String result = max(<span class="str">"Mars"</span>, <span class="str">"Earth"</span>);</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">DO ANALIZY</span><h3><code>extends</code> z interfejsem</h3><ol><li>Jaką metodę gwarantuje ograniczenie?</li><li>Dlaczego nie piszemy tutaj <code>implements</code>?</li><li>Według jakiej reguły porównane zostaną napisy?</li></ol></div>
       </div>
     </section>
 
@@ -172,6 +250,21 @@ doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// O
       </div>
     </section>
 
+    <section class="slide example-slide" id="invariance-example" data-title="Przykład 05" aria-labelledby="invariance-example-title">
+      <div class="eyebrow">PRZYKŁAD 05 // DLACZEGO TO NIE DZIAŁA?</div>
+      <h2 id="invariance-example-title">Bezpieczeństwo zapisu</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Fleet.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">class</span> Vehicle { }
+<span class="kw">class</span> Shuttle <span class="kw">extends</span> Vehicle { }
+<span class="kw">class</span> Rover <span class="kw">extends</span> Vehicle { }
+
+List&lt;Shuttle&gt; shuttles = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="cm">// List&lt;Vehicle&gt; vehicles = shuttles;</span>
+<span class="cm">// vehicles.add(new Rover());</span></code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">EKSPERYMENT MYŚLOWY</span><h3>Gdyby przypisanie było legalne…</h3><ol><li>Jakiego typu obiekty deklaruje lista <code>shuttles</code>?</li><li>Co próbujemy dodać przez referencję <code>vehicles</code>?</li><li>Którą gwarancję typów byśmy złamali?</li></ol><p class="hint">Niezmienniczość blokuje problem zanim pojawi się w pamięci programu.</p></div>
+      </div>
+    </section>
+
     <section class="slide" id="wildcards" data-title="Wildcardy" aria-labelledby="wildcards-title">
       <div class="eyebrow">06 // WILDCARDS</div>
       <h2 id="wildcards-title">Trzy poziomy dostępu</h2>
@@ -181,6 +274,24 @@ doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// O
         <article><span class="card-code">List&lt;? super Integer&gt;</span><h3>Konsument</h3><p>Bezpiecznie dodasz <code>Integer</code>. Odczyt ma jedynie gwarantowany typ <code>Object</code>.</p></article>
       </div>
       <div class="question"><span>Zapamiętaj</span> Wildcard opisuje elastyczny typ argumentu, a nie nowy nazwany parametr typu.</div>
+    </section>
+
+    <section class="slide example-slide" id="wildcards-example" data-title="Przykład 06" aria-labelledby="wildcards-example-title">
+      <div class="eyebrow">PRZYKŁAD 06 // NIEZNANY TYP</div>
+      <h2 id="wildcards-example-title">Metoda tylko do podglądu</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Inspector.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">public static void</span> printSize(List&lt;?&gt; items) {
+    System.out.println(<span class="str">"Size: "</span> + items.size());
+    <span class="kw">for</span> (Object item : items) {
+        System.out.println(item);
+    }
+    <span class="cm">// items.add("new"); // błąd</span>
+}
+
+printSize(List.of(<span class="str">"A"</span>, <span class="str">"B"</span>));
+printSize(List.of(<span class="num">10</span>, <span class="num">20</span>));</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">PYTANIA</span><h3>Wiemy, że to lista — i tylko tyle</h3><ol><li>Dlaczego odczyt jako <code>Object</code> jest bezpieczny?</li><li>Dlaczego nie wolno dodać napisu?</li><li>Czy <code>List&lt;?&gt;</code> oznacza to samo co surowe <code>List</code>?</li></ol><div class="analysis-answer">Nie — wildcard zachowuje kontrolę kompilatora.</div></div>
+      </div>
     </section>
 
     <section class="slide" id="pecs" data-title="PECS" aria-labelledby="pecs-title">
@@ -204,6 +315,24 @@ doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// O
           <div><span>CONSUMER</span><strong>? super T</strong><small>cel konsumuje wartości T</small></div>
           <p><b>PECS</b> dotyczy roli parametru. Jeśli jednocześnie odczytujesz i zapisujesz, często potrzebujesz konkretnego <code>List&lt;T&gt;</code>.</p>
         </div>
+      </div>
+    </section>
+
+    <section class="slide example-slide" id="pecs-example" data-title="Przykład 07" aria-labelledby="pecs-example-title">
+      <div class="eyebrow">PRZYKŁAD 07 // PECS W API</div>
+      <h2 id="pecs-example-title">Zasilanie kolejki zadań</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Tasks.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">class</span> Task { }
+<span class="kw">class</span> RepairTask <span class="kw">extends</span> Task { }
+
+<span class="kw">static void</span> schedule(
+        List&lt;? <span class="kw">extends</span> Task&gt; incoming,
+        List&lt;? <span class="kw">super</span> Task&gt; queue) {
+    <span class="kw">for</span> (Task task : incoming) {
+        queue.add(task);
+    }
+}</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">WSKAŻ ROLE</span><h3>Producent czy konsument?</h3><ol><li>Która lista produkuje zadania?</li><li>Która lista je konsumuje?</li><li>Czy jako <code>incoming</code> można przekazać <code>List&lt;RepairTask&gt;</code>?</li><li>Czy jako <code>queue</code> można przekazać <code>List&lt;Object&gt;</code>?</li></ol></div>
       </div>
     </section>
 
@@ -237,6 +366,21 @@ doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// O
       </div>
     </section>
 
+    <section class="slide example-slide" id="live-coding-example" data-title="Przykład 08" aria-labelledby="live-coding-example-title">
+      <div class="eyebrow">PRZYKŁAD 08 // WARIANT LIVE CODINGU</div>
+      <h2 id="live-coding-example-title">Transfer różnych ładunków</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Mission.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;Integer&gt; energyCells = List.of(<span class="num">10</span>, <span class="num">20</span>);
+List&lt;Number&gt; numericCargo = <span class="kw">new</span> ArrayList&lt;&gt;();
+transfer(energyCells, numericCargo);
+
+List&lt;String&gt; messages = List.of(<span class="str">"SOS"</span>);
+List&lt;Object&gt; archive = <span class="kw">new</span> ArrayList&lt;&gt;();
+transfer(messages, archive);</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">PRZEWIDŹ WYNIK</span><h3>Jedna metoda, dwie misje</h3><ol><li>Jakie <code>T</code> kompilator przyjmie w pierwszym wywołaniu?</li><li>Jakie <code>T</code> może przyjąć w drugim?</li><li>Dlaczego cel może mieć bardziej ogólny typ?</li></ol><p class="hint">Po ukończeniu live codingu oba wywołania powinny kompilować się bez przeciążania metody.</p></div>
+      </div>
+    </section>
+
     <section class="slide" id="erasure" data-title="Type erasure" aria-labelledby="erasure-title">
       <div class="eyebrow">09 // TYPE ERASURE</div>
       <h2 id="erasure-title">Po kompilacji parametr znika</h2>
@@ -248,6 +392,24 @@ doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// O
       <div class="callout"><strong>Konsekwencja:</strong> w czasie działania zwykle nie odróżnisz <code>List&lt;String&gt;</code> od <code>List&lt;Integer&gt;</code>.</div>
     </section>
 
+    <section class="slide example-slide" id="erasure-example" data-title="Przykład 09" aria-labelledby="erasure-example-title">
+      <div class="eyebrow">PRZYKŁAD 09 // OGRANICZENIE JVM</div>
+      <h2 id="erasure-example-title">Które linie się nie skompilują?</h2>
+      <div class="two-col">
+        <div class="code-panel"><div class="code-head"><span>Factory.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">public class</span> Factory&lt;T&gt; {
+    <span class="cm">// private T value = new T();</span>
+    <span class="cm">// private T[] values = new T[10];</span>
+    <span class="cm">// Class&lt;T&gt; type = T.class;</span>
+
+    <span class="kw">public boolean</span> accepts(Object value) {
+        <span class="cm">// return value instanceof T;</span>
+        <span class="kw">return</span> value != <span class="kw">null</span>;
+    }
+}</code></pre></div>
+        <div class="analysis-panel"><span class="analysis-label">DIAGNOZA</span><h3>Brak informacji o <code>T</code></h3><ol><li>Dlaczego JVM nie potrafi wykonać <code>new T()</code>?</li><li>Co jest potrzebne, aby sprawdzić typ w runtime?</li><li>Jak można przekazać informację o klasie?</li></ol><div class="analysis-answer"><code>Factory(Class&lt;T&gt; type)</code></div></div>
+      </div>
+    </section>
+
     <section class="slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title">
       <div class="eyebrow">10 // CHECKPOINT</div>
       <h2 id="quiz-title">Sprawdzenie systemów</h2>
@@ -257,6 +419,21 @@ doubleValue(Double.valueOf(<span class="num">2.5</span>)); <span class="cm">// O
         <article><h3>3. Parametr czy wildcard?</h3><p>Co wybrać, gdy ten sam typ musi wystąpić w kilku miejscach sygnatury?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden>Parametr typu, np. <code>&lt;T&gt;</code>.</div></article>
       </div>
       <div class="final-line"><strong>GENERYKI</strong> = ponowne użycie kodu + bezpieczeństwo typów + mniej rzutowania</div>
+    </section>
+
+    <section class="slide example-slide" id="quiz-example" data-title="Przykład 10" aria-labelledby="quiz-example-title">
+      <div class="eyebrow">PRZYKŁAD 10 // FINAŁOWA ANALIZA</div>
+      <h2 id="quiz-example-title">Zaprojektuj sygnaturę</h2>
+      <div class="two-col">
+        <div class="analysis-panel mission-brief"><span class="analysis-label">ZADANIE DLA GRUPY</span><h3>Metoda <code>appendAll</code></h3><p>Metoda ma pobierać elementy ze źródła i dopisywać je do celu. Powinna działać dla listy <code>Integer</code> jako źródła i listy <code>Number</code> albo <code>Object</code> jako celu.</p><ol><li>Dodaj nazwany parametr typu.</li><li>Dobierz wildcard dla źródła.</li><li>Dobierz wildcard dla celu.</li></ol></div>
+        <div><div class="code-panel"><div class="code-head"><span>Challenge.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">static</span> ______ <span class="kw">void</span> appendAll(
+        List&lt;________&gt; source,
+        List&lt;________&gt; destination) {
+    <span class="kw">for</span> (_____ item : source) {
+        destination.add(item);
+    }
+}</code></pre></div><button class="reveal-btn" type="button" aria-expanded="false" data-target="final-example-solution">Pokaż rozwiązanie</button><div class="reveal" id="final-example-solution" hidden><code>&lt;T&gt; void appendAll(List&lt;? extends T&gt; source, List&lt;? super T&gt; destination)</code></div></div>
+      </div>
     </section>
   </main>
 
