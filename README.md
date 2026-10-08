@@ -2,8 +2,10 @@
 
 Portal interaktywnych wykładów dla przedmiotu Java Zaawansowana.
 
-Aktualnie dostępny wykład: „Generyki i wildcardy”. Jego strona znajduje się w
-`lectures/generics/index.html`.
+Dostępne wykłady:
+
+- „Generyki i wildcardy” — `lectures/generics/index.html`;
+- „Wyrażenia lambda” — `lectures/lambdas/index.html`.
 
 ## Uruchomienie strony
 
@@ -25,4 +27,4 @@ pod adresem `https://<użytkownik>.github.io/<repozytorium>/`.
 
 ## Przykłady Java
 
-Projekt Maven znajduje się w `examples/generics-examples`. Wymaga Java 21.
+Projekty Maven znajdują się w katalogu `examples`. Wymagają Java 21.

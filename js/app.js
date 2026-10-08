@@ -42,7 +42,8 @@
     prevButton.disabled = current === 0;
     nextButton.disabled = current === slides.length - 1;
     nextButton.setAttribute('aria-label', current === slides.length - 1 ? 'Koniec wykładu' : 'Następny slajd');
-    document.title = `${slides[current].dataset.title} // JAZ Generyki`;
+    const deckTitle = document.body.dataset.deckTitle || 'JAZ';
+    document.title = `${slides[current].dataset.title} // ${deckTitle}`;
     if (updateHash) history.replaceState(null, '', `#${slides[current].id}`);
   }
 

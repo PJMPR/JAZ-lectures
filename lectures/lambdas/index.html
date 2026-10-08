@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wykład Java 21: klasy anonimowe, interfejsy funkcyjne i wyrażenia lambda.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // Wyrażenia lambda</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ Lambdy">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // LAMBDAS</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>SYS <b>ONLINE</b></span><span>FUNCTIONS <b>READY</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">26</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 02 // 45 MIN // JAVA 21</div><div class="hero-grid"><div><p class="kicker">ZACHOWANIE JAKO WARTOŚĆ</p><h1 id="intro-title">Wyrażenia<br><em>lambda</em></h1><p class="lead">Od klasy anonimowej do krótkiej funkcji, którą można przekazać do metody i wykonać później.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>zamienisz klasę anonimową na lambdę,</li><li>rozpoznasz interfejs funkcyjny,</li><li>dobierzesz standardowy typ z <code>java.util.function</code>.</li></ul></div></div><div class="reactor" aria-hidden="true"><div class="ring ring-a"></div><div class="ring ring-b"></div><div class="core">λ</div><span class="orbit o1">T</span><span class="orbit o2">R</span><span class="orbit o3">()</span></div></div>
+      <aside class="speaker-note">Zacznij od pytania: czy zachowanie można zapisać w zmiennej tak samo jak liczbę albo napis?</aside>
+    </section>
+
+    <section class="slide example-slide" id="warmup" data-title="Przykład 00" aria-labelledby="warmup-title"><div class="eyebrow">PRZYKŁAD 00 // ROZGRZEWKA</div><h2 id="warmup-title">Sortowanie potrzebuje reguły</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Names.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;String&gt; names = <span class="kw">new</span> ArrayList&lt;&gt;(
+    List.of(<span class="str">"Ada"</span>, <span class="str">"Krzysztof"</span>, <span class="str">"Jan"</span>));
+
+names.sort((first, second) -&gt;
+    Integer.compare(first.length(), second.length()));</code></pre></div><div class="analysis-panel"><span class="analysis-label">DO ANALIZY</span><h3>Co trafia do <code>sort</code>?</h3><ol><li>Jakie wartości reprezentują parametry?</li><li>Co oznacza wynik ujemny, zero lub dodatni?</li><li>Skąd kompilator zna typ parametrów?</li></ol></div></div></section>
+
+    <section class="slide" id="anonymous" data-title="Klasa anonimowa" aria-labelledby="anonymous-title"><div class="eyebrow">01 // KLASA ANONIMOWA</div><h2 id="anonymous-title">Obiekt bez nazwy klasy</h2><div class="two-col"><div><p>Klasa anonimowa jednocześnie definiuje klasę i tworzy jej jedyną instancję. Przydaje się, gdy implementacja jest lokalna i krótka.</p><div class="syntax"><span><b>new</b> InterfaceName() { ... }</span><small>ciało klasy może implementować metody i posiadać pola</small></div><div class="callout warning"><strong>Koszt czytelności:</strong> dużo składni otacza często jedną istotną metodę.</div></div><div class="code-panel"><div class="code-head"><span>ClickHandler.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Runnable task = <span class="kw">new</span> Runnable() {
+    @Override
+    <span class="kw">public void</span> run() {
+        System.out.println(<span class="str">"Start"</span>);
+    }
+};
+
+task.run();</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="anonymous-comparator" data-title="Przykład 01" aria-labelledby="anonymous-comparator-title"><div class="eyebrow">PRZYKŁAD 01 // COMPARATOR</div><h2 id="anonymous-comparator-title">Reguła sortowania przed lambdą</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>AnonymousComparator.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Comparator&lt;String&gt; byLength =
+    <span class="kw">new</span> Comparator&lt;&gt;() {
+        @Override
+        <span class="kw">public int</span> compare(
+                String first, String second) {
+            <span class="kw">return</span> Integer.compare(
+                first.length(), second.length());
+        }
+    };</code></pre></div><div class="analysis-panel"><span class="analysis-label">PYTANIA</span><h3>Oddziel składnię od zachowania</h3><ol><li>Która metoda opisuje właściwą regułę?</li><li>Które elementy kodu są obowiązkowym opakowaniem?</li><li>Czy obiekt może przechowywać stan?</li></ol><div class="analysis-answer">Lambda skróci implementację jednej metody, ale nie zastępuje każdej klasy anonimowej.</div></div></div></section>
+
+    <section class="slide" id="functional-interface" data-title="Interfejs funkcyjny" aria-labelledby="functional-title"><div class="eyebrow">02 // INTERFEJS FUNKCYJNY</div><h2 id="functional-title">Jedna metoda abstrakcyjna</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Operation.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>@FunctionalInterface
+<span class="kw">interface</span> Operation {
+    <span class="kw">int</span> apply(<span class="kw">int</span> left, <span class="kw">int</span> right);
+}</code></pre></div><div><p>Interfejs funkcyjny ma dokładnie jedną metodę abstrakcyjną. Lambda dostarcza implementację tej metody.</p><div class="callout"><strong><code>@FunctionalInterface</code>:</strong> adnotacja nie jest wymagana, ale kompilator pilnuje dzięki niej kontraktu.</div><p class="hint">Metody <code>default</code>, <code>static</code> oraz metody odziedziczone z <code>Object</code> nie zwiększają liczby metod abstrakcyjnych.</p></div></div></section>
+
+    <section class="slide example-slide" id="functional-rules" data-title="Przykład 02" aria-labelledby="functional-rules-title"><div class="eyebrow">PRZYKŁAD 02 // KONTRAKT</div><h2 id="functional-rules-title">Który interfejs jest funkcyjny?</h2><div class="cards three"><article><span class="card-code">A: void run()</span><p>Jedna metoda abstrakcyjna. Lambda pasuje.</p></article><article><span class="card-code">B: test() + default log()</span><p>Metoda domyślna nie łamie kontraktu.</p></article><article><span class="card-code">C: start() + stop()</span><p>Dwie metody abstrakcyjne. Lambda nie określi, którą implementuje.</p></article></div><div class="question"><span>Pytanie do sali</span> Czy interfejs bez adnotacji może być funkcyjny?</div></section>
+
+    <section class="slide" id="syntax" data-title="Składnia" aria-labelledby="syntax-title"><div class="eyebrow">03 // SKŁADNIA LAMBDY</div><h2 id="syntax-title">Parametry, strzałka, ciało</h2><div class="two-col"><div class="syntax"><span>(parameters) <b>-&gt;</b> expression</span><small>wyrażenie staje się wartością zwracaną</small></div><div class="code-panel"><pre><code>() -&gt; System.out.println(<span class="str">"Start"</span>)
+
+name -&gt; name.length()
+
+(left, right) -&gt; left + right
+
+(String text) -&gt; {
+    String clean = text.trim();
+    <span class="kw">return</span> clean.toUpperCase();
+}</code></pre></div></div><div class="callout"><strong>Reguła:</strong> nawiasy można pominąć dla jednego parametru bez jawnego typu. <code>return</code> i średnik w ciele blokowym pozostają obowiązkowe.</div></section>
+
+    <section class="slide example-slide" id="conversion" data-title="Przykład 03" aria-labelledby="conversion-title"><div class="eyebrow">PRZYKŁAD 03 // REDUKCJA SKŁADNI</div><h2 id="conversion-title">Od klasy anonimowej do lambdy</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Before.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Operation add = <span class="kw">new</span> Operation() {
+    @Override
+    <span class="kw">public int</span> apply(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+        <span class="kw">return</span> a + b;
+    }
+};</code></pre></div><div><div class="code-panel"><div class="code-head"><span>After.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Operation add = (a, b) -&gt; a + b;
+
+<span class="kw">int</span> result = add.apply(<span class="num">2</span>, <span class="num">3</span>);</code></pre></div><div class="analysis-panel"><span class="analysis-label">WYNIK</span><h3>Ten sam kontrakt</h3><p>Typ zmiennej wskazuje interfejs, a więc także parametry i typ wyniku lambdy.</p></div></div></div></section>
+
+    <section class="slide" id="target-typing" data-title="Typ docelowy" aria-labelledby="target-title"><div class="eyebrow">04 // TARGET TYPING</div><h2 id="target-title">Lambda potrzebuje kontekstu</h2><div class="two-col"><div><p>Lambda sama nie ma nazwanego typu. Kompilator interpretuje ją jako implementację interfejsu wynikającego z przypisania, argumentu metody lub zwracanego typu.</p><div class="callout danger"><strong>Nie zadziała:</strong> <code>var action = () -&gt; "OK";</code> nie podaje docelowego interfejsu.</div></div><div class="code-panel"><pre><code>Supplier&lt;String&gt; first = () -&gt; <span class="str">"OK"</span>;
+
+execute(() -&gt; System.out.println(<span class="str">"Go"</span>));
+
+<span class="kw">static</span> Predicate&lt;String&gt; rule() {
+    <span class="kw">return</span> text -&gt; !text.isBlank();
+}</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="capture" data-title="Przykład 04" aria-labelledby="capture-title"><div class="eyebrow">PRZYKŁAD 04 // CAPTURE</div><h2 id="capture-title">Lambda korzysta z otoczenia</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Capture.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">int</span> minimum = <span class="num">5</span>;
+Predicate&lt;String&gt; longEnough =
+    text -&gt; text.length() &gt;= minimum;
+
+System.out.println(longEnough.test(<span class="str">"lambda"</span>));
+
+<span class="cm">// minimum = 8; // odebrałoby effective final</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">OGRANICZENIE</span><h3>Effectively final</h3><ol><li>Lambda może odczytać zmienną lokalną.</li><li>Zmienna nie może później otrzymać nowej wartości.</li><li>Pola obiektu nie podlegają temu ograniczeniu.</li></ol></div></div></section>
+
+    <section class="slide" id="applications" data-title="Zastosowania" aria-labelledby="applications-title"><div class="eyebrow">05 // ZASTOSOWANIA</div><h2 id="applications-title">Przekazywanie zachowania</h2><div class="cards three"><article><span class="card-code">sort(comparator)</span><h3>Kolekcje</h3><p>Reguła porównania trafia do algorytmu sortowania.</p></article><article><span class="card-code">stream.filter(rule)</span><h3>Przetwarzanie danych</h3><p>Operacje opisują kolejne etapy potoku.</p></article><article><span class="card-code">onClick(action)</span><h3>Zdarzenia i zadania</h3><p>Kod wykona się później, gdy wystąpi zdarzenie lub wątek otrzyma zadanie.</p></article></div></section>
+
+    <section class="slide example-slide" id="collections" data-title="Przykład 05" aria-labelledby="collections-title"><div class="eyebrow">PRZYKŁAD 05 // COLLECTIONS</div><h2 id="collections-title">Operacje na liście</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>CollectionLambdas.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;String&gt; names = <span class="kw">new</span> ArrayList&lt;&gt;(
+    List.of(<span class="str">"Ada"</span>, <span class="str">"Jan"</span>, <span class="str">"Barbara"</span>));
+
+names.removeIf(name -&gt; name.length() &lt; <span class="num">4</span>);
+names.replaceAll(String::toUpperCase);
+names.sort(Comparator.naturalOrder());
+names.forEach(System.out::println);</code></pre></div><div class="analysis-panel"><span class="analysis-label">CZTERY KONTRAKTY</span><h3>Znajdź typ funkcji</h3><ol><li><code>removeIf</code> oczekuje warunku.</li><li><code>replaceAll</code> oczekuje transformacji.</li><li><code>sort</code> oczekuje porównania.</li><li><code>forEach</code> oczekuje efektu ubocznego.</li></ol></div></div></section>
+
+    <section class="slide" id="predicate" data-title="Predicate" aria-labelledby="predicate-title"><div class="eyebrow">06 // JAVA.UTIL.FUNCTION</div><h2 id="predicate-title"><code>Predicate&lt;T&gt;</code> testuje warunek</h2><div class="two-col"><div><div class="syntax"><span>T <b>-&gt;</b> boolean</span><small><code>boolean test(T value)</code></small></div><p>Predicate służy do filtrowania, walidacji i wyszukiwania. Można łączyć warunki metodami <code>and</code>, <code>or</code> oraz <code>negate</code>.</p></div><div class="code-panel"><pre><code>Predicate&lt;String&gt; notBlank =
+    text -&gt; !text.isBlank();
+Predicate&lt;String&gt; shortText =
+    text -&gt; text.length() &lt;= <span class="num">20</span>;
+
+Predicate&lt;String&gt; valid =
+    notBlank.and(shortText);
+
+valid.test(<span class="str">"Java"</span>); <span class="cm">// true</span></code></pre></div></div></section>
+
+    <section class="slide example-slide" id="function" data-title="Przykład 06" aria-labelledby="function-title"><div class="eyebrow">PRZYKŁAD 06 // FUNCTION</div><h2 id="function-title"><code>Function&lt;T, R&gt;</code> zmienia wartość</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Functions.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Function&lt;String, String&gt; clean = String::trim;
+Function&lt;String, Integer&gt; length = String::length;
+
+Function&lt;String, Integer&gt; cleanLength =
+    clean.andThen(length);
+
+<span class="kw">int</span> result = cleanLength.apply(<span class="str">" Java "</span>);
+<span class="cm">// 4</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">SYGNATURA</span><h3><code>T -&gt; R</code></h3><ol><li><code>T</code> opisuje argument.</li><li><code>R</code> opisuje wynik.</li><li><code>andThen</code> przekazuje wynik pierwszej funkcji do drugiej.</li></ol></div></div></section>
+
+    <section class="slide" id="consumer-supplier" data-title="Consumer i Supplier" aria-labelledby="consumer-title"><div class="eyebrow">07 // WEJŚCIE I WYJŚCIE</div><h2 id="consumer-title"><code>Consumer</code> i <code>Supplier</code></h2><div class="two-col"><div><div class="syntax"><span>Consumer&lt;T&gt;: T <b>-&gt;</b> void</span><small><code>accept(T value)</code> wykonuje operację</small></div><div class="code-panel compact"><pre><code>Consumer&lt;String&gt; log = System.out::println;
+log.accept(<span class="str">"gotowe"</span>);</code></pre></div></div><div><div class="syntax"><span>Supplier&lt;T&gt;: () <b>-&gt;</b> T</span><small><code>get()</code> dostarcza wartość</small></div><div class="code-panel compact"><pre><code>Supplier&lt;UUID&gt; id = UUID::randomUUID;
+UUID next = id.get();</code></pre></div></div></div></section>
+
+    <section class="slide example-slide" id="operators" data-title="Przykład 07" aria-labelledby="operators-title"><div class="eyebrow">PRZYKŁAD 07 // OPERATORY</div><h2 id="operators-title">Gdy argument i wynik mają ten sam typ</h2><div class="two-col"><div class="code-panel"><pre><code>UnaryOperator&lt;String&gt; normalize =
+    text -&gt; text.trim().toLowerCase();
+
+BinaryOperator&lt;Integer&gt; maximum =
+    Integer::max;
+
+normalize.apply(<span class="str">" JAVA "</span>); <span class="cm">// java</span>
+maximum.apply(<span class="num">7</span>, <span class="num">12</span>);   <span class="cm">// 12</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">SPECJALIZACJA</span><h3>Mniej parametrów typów</h3><p><code>UnaryOperator&lt;T&gt;</code> specjalizuje <code>Function&lt;T,T&gt;</code>, a <code>BinaryOperator&lt;T&gt;</code> specjalizuje <code>BiFunction&lt;T,T,T&gt;</code>.</p><div class="analysis-answer">Wybieraj najbardziej precyzyjny standardowy interfejs.</div></div></div></section>
+
+    <section class="slide" id="bifunction" data-title="Warianty Bi" aria-labelledby="bi-title"><div class="eyebrow">08 // DWA ARGUMENTY</div><h2 id="bi-title">Rodzina interfejsów <code>Bi...</code></h2><div class="cards three"><article><span class="card-code">BiFunction&lt;T,U,R&gt;</span><p>Dwa argumenty mogą mieć różne typy, wynik ma typ <code>R</code>.</p></article><article><span class="card-code">BiPredicate&lt;T,U&gt;</span><p>Sprawdza warunek zależny od dwóch wartości.</p></article><article><span class="card-code">BiConsumer&lt;T,U&gt;</span><p>Przyjmuje dwie wartości i nie zwraca wyniku.</p></article></div><div class="code-panel compact"><pre><code>BiFunction&lt;String, Integer, String&gt; repeat = String::repeat;
+BiConsumer&lt;String, Integer&gt; printEntry = (key, value) -&gt; System.out.println(key + <span class="str">": "</span> + value);</code></pre></div></section>
+
+    <section class="slide example-slide" id="method-reference" data-title="Przykład 08" aria-labelledby="method-reference-title"><div class="eyebrow">PRZYKŁAD 08 // METHOD REFERENCE</div><h2 id="method-reference-title">Odwołanie do istniejącej metody</h2><div class="two-col"><div class="code-panel"><pre><code>text -&gt; text.trim()       <span class="cm">// lambda</span>
+String::trim             <span class="cm">// metoda instancji</span>
+
+value -&gt; Integer.parseInt(value)
+Integer::parseInt        <span class="cm">// metoda statyczna</span>
+
+() -&gt; <span class="kw">new</span> ArrayList&lt;&gt;()
+ArrayList::new           <span class="cm">// konstruktor</span>
+
+value -&gt; printer.print(value)
+printer::print           <span class="cm">// konkretny obiekt</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">REGUŁA</span><h3>Ta sama sygnatura</h3><p>Odwołanie do metody działa, gdy jej parametry i wynik pasują do metody interfejsu funkcyjnego.</p><p class="hint">Jeśli lambda dodaje logikę, nazwę parametru lub ułatwia czytanie, pozostaw lambdę.</p></div></div></section>
+
+    <section class="slide" id="primitive" data-title="Typy prymitywne" aria-labelledby="primitive-title"><div class="eyebrow">09 // SPECJALIZACJE</div><h2 id="primitive-title">Mniej autoboxingu</h2><div class="two-col"><div><p>Java dostarcza odmiany dla <code>int</code>, <code>long</code> i <code>double</code>. Unikają tworzenia obiektów opakowujących w intensywnie wykonywanym kodzie.</p><div class="type-map"><span><b>IntPredicate</b> int → boolean</span><span><b>IntFunction&lt;R&gt;</b> int → R</span><span><b>ToIntFunction&lt;T&gt;</b> T → int</span><span><b>IntConsumer</b> int → void</span></div></div><div class="code-panel"><pre><code>IntPredicate even = value -&gt; value % <span class="num">2</span> == <span class="num">0</span>;
+ToIntFunction&lt;String&gt; length = String::length;
+IntUnaryOperator square = value -&gt; value * value;
+
+even.test(<span class="num">8</span>);       <span class="cm">// bez Integer</span>
+length.applyAsInt(<span class="str">"Java"</span>);
+square.applyAsInt(<span class="num">5</span>);</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="stream" data-title="Przykład 09" aria-labelledby="stream-title"><div class="eyebrow">PRZYKŁAD 09 // STREAM API</div><h2 id="stream-title">Potok operacji</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Pipeline.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;String&gt; result = names.stream()
+    .filter(name -&gt; name.length() &gt;= <span class="num">4</span>)
+    .map(String::toUpperCase)
+    .sorted()
+    .toList();</code></pre></div><div class="analysis-panel"><span class="analysis-label">PRZEPŁYW</span><h3>Każdy etap ma inny kontrakt</h3><ol><li><code>filter</code> używa <code>Predicate</code>.</li><li><code>map</code> używa <code>Function</code>.</li><li><code>sorted</code> może użyć <code>Comparator</code>.</li></ol><p class="hint">Operacje pośrednie są leniwe. Terminalne <code>toList</code> uruchamia potok.</p></div></div></section>
+
+    <section class="slide" id="exceptions" data-title="Wyjątki" aria-labelledby="exceptions-title"><div class="eyebrow">10 // WYJĄTKI SPRAWDZANE</div><h2 id="exceptions-title">Sygnatura interfejsu wyznacza wyjątki</h2><div class="two-col"><div><p>Standardowe interfejsy funkcyjne zwykle nie deklarują wyjątków checked. Lambda nie może więc swobodnie wywołać metody, która taki wyjątek zgłasza.</p><div class="callout warning"><strong>Rozwiązania:</strong> obsłuż wyjątek w lambdzie, opakuj go w wyjątek runtime albo zdefiniuj własny interfejs z <code>throws</code>.</div></div><div class="code-panel"><pre><code>@FunctionalInterface
+<span class="kw">interface</span> CheckedFunction&lt;T, R&gt; {
+    R apply(T value) <span class="kw">throws</span> IOException;
+}
+
+CheckedFunction&lt;Path, String&gt; read =
+    Files::readString;</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // DOBÓR INTERFEJSU</div><h2 id="quiz-title">Co pasuje do sygnatury?</h2><div class="quiz-grid"><article><h3>1. Walidacja</h3><p>Przyjmuje zamówienie i zwraca <code>boolean</code>.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>Predicate&lt;Order&gt;</code></div></article><article><h3>2. Fabryka</h3><p>Nie przyjmuje argumentu i tworzy identyfikator.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>Supplier&lt;UUID&gt;</code></div></article><article><h3>3. Mapowanie</h3><p>Zamienia <code>User</code> na <code>UserDto</code>.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden><code>Function&lt;User, UserDto&gt;</code></div></article></div><div class="final-line"><strong>LAMBDA</strong> = implementacja jednej metody + typ docelowy + zwięzłe przekazanie zachowania</div></section>
+
+    <section class="slide example-slide" id="challenge" data-title="Przykład 10" aria-labelledby="challenge-title"><div class="eyebrow">PRZYKŁAD 10 // LIVE CODING</div><h2 id="challenge-title">Potok komunikatów</h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">ZADANIE DLA GRUPY</span><h3>Oczyść, wybierz, przekształć</h3><p>Dla listy komunikatów usuń spacje, zachowaj wpisy rozpoczynające się od <code>ERROR</code>, zamień je na małe litery i wypisz.</p><ol><li>Dobierz operację <code>map</code>.</li><li>Zapisz warunek dla <code>filter</code>.</li><li>Użyj method reference w ostatnim kroku.</li></ol></div><div><div class="code-panel"><div class="code-head"><span>NotificationPipeline.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>messages.stream()
+    .map(__________)
+    .filter(________________________)
+    .map(__________________)
+    .forEach(____________________);</code></pre></div><button class="reveal-btn" type="button" aria-expanded="false" data-target="solution">Pokaż rozwiązanie</button><div class="reveal" id="solution" hidden><code>.map(String::trim).filter(m -&gt; m.startsWith("ERROR")).map(String::toLowerCase).forEach(System.out::println)</code></div></div></div></section>
+
+    <section class="slide example-slide" id="before-after-runnable" data-title="Porównanie 01" aria-labelledby="before-after-runnable-title">
+      <div class="eyebrow">PORÓWNANIE 01 // RUNNABLE</div><h2 id="before-after-runnable-title">Zadanie do wykonania w tle</h2>
+      <div class="two-col"><div><span class="analysis-label">BEZ LAMBDY</span><div class="code-panel compact"><div class="code-head"><span>AnonymousTask.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Runnable task = <span class="kw">new</span> Runnable() {
+    @Override
+    <span class="kw">public void</span> run() {
+        System.out.println(<span class="str">"Synchronizacja"</span>);
+    }
+};
+
+<span class="kw">new</span> Thread(task).start();</code></pre></div></div><div><span class="analysis-label">Z LAMBDĄ</span><div class="code-panel compact"><div class="code-head"><span>LambdaTask.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Runnable task = () -&gt;
+    System.out.println(<span class="str">"Synchronizacja"</span>);
+
+<span class="kw">new</span> Thread(task).start();</code></pre></div><div class="analysis-answer">Lambda pozostawia tylko parametry i ciało metody <code>run()</code>.</div></div></div>
+    </section>
+
+    <section class="slide example-slide" id="before-after-comparator" data-title="Porównanie 02" aria-labelledby="before-after-comparator-title">
+      <div class="eyebrow">PORÓWNANIE 02 // COMPARATOR</div><h2 id="before-after-comparator-title">Sortowanie po długości napisu</h2>
+      <div class="two-col"><div><span class="analysis-label">BEZ LAMBDY</span><div class="code-panel compact"><div class="code-head"><span>AnonymousComparator.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>names.sort(<span class="kw">new</span> Comparator&lt;String&gt;() {
+    @Override
+    <span class="kw">public int</span> compare(
+            String first, String second) {
+        <span class="kw">return</span> Integer.compare(
+            first.length(), second.length());
+    }
+});</code></pre></div></div><div><span class="analysis-label">Z LAMBDĄ</span><div class="code-panel compact"><div class="code-head"><span>LambdaComparator.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>names.sort((first, second) -&gt;
+    Integer.compare(
+        first.length(), second.length()));</code></pre></div><div class="analysis-answer">Jeszcze czytelniej: <code>names.sort(Comparator.comparingInt(String::length));</code></div></div></div>
+    </section>
+
+    <section class="slide example-slide" id="before-after-filter" data-title="Porównanie 03" aria-labelledby="before-after-filter-title">
+      <div class="eyebrow">PORÓWNANIE 03 // FILTROWANIE</div><h2 id="before-after-filter-title">Wybór aktywnych użytkowników</h2>
+      <div class="two-col"><div><span class="analysis-label">BEZ LAMBDY</span><div class="code-panel compact"><div class="code-head"><span>Loop.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;User&gt; activeUsers = <span class="kw">new</span> ArrayList&lt;&gt;();
+
+<span class="kw">for</span> (User user : users) {
+    <span class="kw">if</span> (user.isActive()) {
+        activeUsers.add(user);
+    }
+}</code></pre></div></div><div><span class="analysis-label">Z LAMBDĄ I STREAM API</span><div class="code-panel compact"><div class="code-head"><span>Stream.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;User&gt; activeUsers = users.stream()
+    .filter(User::isActive)
+    .toList();</code></pre></div><div class="analysis-answer">Pętla opisuje kolejne instrukcje. Potok opisuje wynik: użytkownicy spełniający warunek.</div></div></div>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
