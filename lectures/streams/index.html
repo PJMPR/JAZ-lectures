@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wykład Java 21: Stream API i deklaratywne przetwarzanie kolekcji.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // Stream API</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ Stream API">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // STREAM API</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>SYS <b>ONLINE</b></span><span>PIPELINE <b>READY</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">28</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 03 // 45 MIN // JAVA 21</div><div class="hero-grid"><div><p class="kicker">KOLEKCJA → POTOK → WYNIK</p><h1 id="intro-title">Stream<br><em>API</em></h1><p class="lead">Jak opisywać przetwarzanie danych jako potok operacji zamiast ręcznie sterować każdą iteracją.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>zbudujesz potok z operacji pośrednich i terminalnych,</li><li>zastąpisz typowe pętle operacjami Stream API,</li><li>dobierzesz kolektor i rozpoznasz niebezpieczne efekty uboczne.</li></ul></div></div><div class="reactor" aria-hidden="true"><div class="ring ring-a"></div><div class="ring ring-b"></div><div class="core">≫</div><span class="orbit o1">F</span><span class="orbit o2">M</span><span class="orbit o3">R</span></div></div>
+      <aside class="speaker-note">Zacznij od pytania: czy chcemy opisać sposób przechodzenia po liście, czy wynik, który chcemy otrzymać?</aside>
+    </section>
+
+    <section class="slide example-slide" id="warmup" data-title="Przykład 00" aria-labelledby="warmup-title"><div class="eyebrow">PRZYKŁAD 00 // TEN SAM PROBLEM</div><h2 id="warmup-title">Aktywne konta zapisane wielkimi literami</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code>List&lt;String&gt; result = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (User user : users) {
+    <span class="kw">if</span> (user.active()) {
+        result.add(user.name().toUpperCase());
+    }
+}</code></pre></div></div><div><span class="analysis-label">STRUMIEŃ</span><div class="code-panel compact"><pre><code>List&lt;String&gt; result = users.stream()
+    .filter(User::active)
+    .map(User::name)
+    .map(String::toUpperCase)
+    .toList();</code></pre></div><div class="analysis-answer">Oba fragmenty dają ten sam wynik. Różnią się sposobem opisania pracy.</div></div></div></section>
+
+    <section class="slide" id="what-is-stream" data-title="Czym jest strumień" aria-labelledby="what-title"><div class="eyebrow">01 // MODEL</div><h2 id="what-title">Strumień nie jest kolekcją</h2><div class="cards three"><article><span class="card-code">source</span><h3>Źródło</h3><p>Kolekcja, tablica, plik albo generator dostarcza elementy.</p></article><article><span class="card-code">pipeline</span><h3>Potok</h3><p>Operacje opisują wybór, transformację i porządek danych.</p></article><article><span class="card-code">result</span><h3>Wynik</h3><p>Operacja terminalna produkuje wartość lub efekt końcowy.</p></article></div><div class="callout"><strong>Ważne:</strong> strumień nie przechowuje danych i nie modyfikuje automatycznie kolekcji źródłowej.</div></section>
+
+    <section class="slide example-slide" id="pipeline" data-title="Przykład 01" aria-labelledby="pipeline-title"><div class="eyebrow">PRZYKŁAD 01 // ANATOMIA POTOKU</div><h2 id="pipeline-title">Źródło, etapy, terminal</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Orders.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>List&lt;String&gt; ids = orders.stream()  <span class="cm">// źródło</span>
+    .filter(Order::paid)            <span class="cm">// pośrednia</span>
+    .sorted(Comparator.comparing(Order::date))
+    .map(Order::id)                 <span class="cm">// pośrednia</span>
+    .toList();                      <span class="cm">// terminalna</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">PRZEPŁYW</span><h3>Typ może zmieniać się po drodze</h3><ol><li>Źródło dostarcza <code>Order</code>.</li><li><code>filter</code> zachowuje typ elementu.</li><li><code>map</code> zmienia <code>Order</code> na <code>String</code>.</li><li><code>toList</code> materializuje wynik.</li></ol></div></div></section>
+
+    <section class="slide" id="lazy" data-title="Leniwość" aria-labelledby="lazy-title"><div class="eyebrow">02 // LAZY EVALUATION</div><h2 id="lazy-title">Bez terminala nic nie płynie</h2><div class="two-col"><div><p>Operacje pośrednie budują przepis. Przetwarzanie rozpoczyna dopiero operacja terminalna.</p><div class="callout warning"><strong>Konsekwencja:</strong> samo wywołanie <code>filter</code> lub <code>map</code> nie wykonuje lambdy.</div></div><div class="code-panel"><pre><code>Stream&lt;String&gt; pipeline = names.stream()
+    .filter(name -&gt; {
+        System.out.println(name);
+        <span class="kw">return</span> name.length() &gt; <span class="num">3</span>;
+    });
+
+<span class="cm">// jeszcze nic nie wypisano</span>
+<span class="kw">long</span> count = pipeline.count();</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="filter" data-title="Porównanie 01" aria-labelledby="filter-title"><div class="eyebrow">PORÓWNANIE 01 // FILTER</div><h2 id="filter-title">Wybór elementów spełniających warunek</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code>List&lt;Product&gt; available = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (Product product : products) {
+    <span class="kw">if</span> (product.stock() &gt; <span class="num">0</span>) {
+        available.add(product);
+    }
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code>List&lt;Product&gt; available = products.stream()
+    .filter(product -&gt; product.stock() &gt; <span class="num">0</span>)
+    .toList();</code></pre></div><div class="analysis-answer"><code>filter</code> przyjmuje <code>Predicate&lt;Product&gt;</code> i przepuszcza tylko elementy z wynikiem <code>true</code>.</div></div></div></section>
+
+    <section class="slide example-slide" id="map" data-title="Porównanie 02" aria-labelledby="map-title"><div class="eyebrow">PORÓWNANIE 02 // MAP</div><h2 id="map-title">Transformacja każdego elementu</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code>List&lt;String&gt; emails = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (User user : users) {
+    emails.add(user.email().toLowerCase());
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code>List&lt;String&gt; emails = users.stream()
+    .map(User::email)
+    .map(String::toLowerCase)
+    .toList();</code></pre></div><div class="analysis-answer"><code>map</code> przyjmuje <code>Function&lt;T,R&gt;</code>; liczba elementów zwykle pozostaje taka sama, ale zmienić może się ich typ.</div></div></div></section>
+
+    <section class="slide example-slide" id="filter-map" data-title="Porównanie 03" aria-labelledby="filter-map-title"><div class="eyebrow">PORÓWNANIE 03 // POTOK</div><h2 id="filter-map-title">Najpierw wybierz, potem przekształć</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code>List&lt;String&gt; labels = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (Product p : products) {
+    <span class="kw">if</span> (p.price().compareTo(limit) &lt;= <span class="num">0</span>) {
+        labels.add(p.name().toUpperCase());
+    }
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code>List&lt;String&gt; labels = products.stream()
+    .filter(p -&gt; p.price().compareTo(limit) &lt;= <span class="num">0</span>)
+    .map(Product::name)
+    .map(String::toUpperCase)
+    .toList();</code></pre></div><div class="analysis-answer">Kolejność etapów ma znaczenie: wcześniejszy <code>filter</code> ogranicza liczbę późniejszych transformacji.</div></div></div></section>
+
+    <section class="slide" id="sorted-distinct" data-title="Porządek" aria-labelledby="sort-title"><div class="eyebrow">03 // SORTED · DISTINCT · LIMIT</div><h2 id="sort-title">Porządkowanie i ograniczanie</h2><div class="two-col"><div class="code-panel"><pre><code>List&lt;String&gt; topNames = users.stream()
+    .map(User::name)
+    .distinct()
+    .sorted(Comparator.comparingInt(String::length)
+        .thenComparing(Comparator.naturalOrder()))
+    .limit(<span class="num">5</span>)
+    .toList();</code></pre></div><div><div class="type-map"><span><b>distinct</b> usuwa duplikaty</span><span><b>sorted</b> porządkuje</span><span><b>limit</b> bierze początek</span><span><b>skip</b> pomija początek</span></div><p class="hint"><code>distinct</code> opiera się na <code>equals</code> i <code>hashCode</code>. <code>sorted</code> może wymagać buforowania wszystkich elementów.</p></div></div></section>
+
+    <section class="slide example-slide" id="sorting" data-title="Porównanie 04" aria-labelledby="sorting-title"><div class="eyebrow">PORÓWNANIE 04 // SORTOWANIE</div><h2 id="sorting-title">Nowa lista bez zmiany źródła</h2><div class="two-col"><div><span class="analysis-label">KOLEKCJA I PĘTLA</span><div class="code-panel compact"><pre><code>List&lt;Product&gt; sorted = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (Product product : products) {
+    sorted.add(product);
+}
+sorted.sort(Comparator.comparing(Product::price));</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code>List&lt;Product&gt; sorted = products.stream()
+    .sorted(Comparator.comparing(Product::price))
+    .toList();</code></pre></div><div class="analysis-answer"><code>List.sort</code> zmienia listę, na której jest wywołane. <code>stream().sorted().toList()</code> tworzy wynik i pozostawia źródło bez zmian.</div></div></div></section>
+
+    <section class="slide example-slide" id="match-find" data-title="Porównanie 05" aria-labelledby="match-title"><div class="eyebrow">PORÓWNANIE 05 // MATCH</div><h2 id="match-title">Czy istnieje element spełniający warunek?</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code><span class="kw">boolean</span> hasOverdue = <span class="kw">false</span>;
+<span class="kw">for</span> (Invoice invoice : invoices) {
+    <span class="kw">if</span> (invoice.overdue()) {
+        hasOverdue = <span class="kw">true</span>;
+        <span class="kw">break</span>;
+    }
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code><span class="kw">boolean</span> hasOverdue = invoices.stream()
+    .anyMatch(Invoice::overdue);</code></pre></div><div class="analysis-panel"><span class="analysis-label">KRÓTKIE SPIĘCIE</span><p><code>anyMatch</code>, <code>allMatch</code>, <code>noneMatch</code> i <code>findFirst</code> mogą zakończyć pracę przed końcem źródła.</p></div></div></div></section>
+
+    <section class="slide example-slide" id="optional" data-title="Przykład 06" aria-labelledby="optional-title"><div class="eyebrow">PRZYKŁAD 06 // OPTIONAL</div><h2 id="optional-title">Wyszukiwanie może nie dać wyniku</h2><div class="two-col"><div class="code-panel"><pre><code>Optional&lt;User&gt; admin = users.stream()
+    .filter(User::admin)
+    .findFirst();
+
+String label = admin
+    .map(User::name)
+    .orElse(<span class="str">"brak administratora"</span>);</code></pre></div><div class="analysis-panel"><span class="analysis-label">KONTRAKT</span><h3>Brak wartości jest jawny</h3><ol><li><code>findFirst</code> zwraca <code>Optional&lt;T&gt;</code>.</li><li><code>map</code> przekształca wartość, jeśli istnieje.</li><li><code>orElse</code> dostarcza wartość zastępczą.</li></ol><p class="hint">Nie wywołuj <code>get()</code> bez sprawdzenia obecności.</p></div></div></section>
+
+    <section class="slide example-slide" id="count-sum" data-title="Porównanie 06" aria-labelledby="count-title"><div class="eyebrow">PORÓWNANIE 06 // AGREGACJA</div><h2 id="count-title">Suma wartości</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code><span class="kw">int</span> total = <span class="num">0</span>;
+<span class="kw">for</span> (Order order : orders) {
+    <span class="kw">if</span> (order.paid()) {
+        total += order.amount();
+    }
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code><span class="kw">int</span> total = orders.stream()
+    .filter(Order::paid)
+    .mapToInt(Order::amount)
+    .sum();</code></pre></div><div class="analysis-answer"><code>mapToInt</code> tworzy <code>IntStream</code>, który oferuje <code>sum</code>, <code>average</code>, <code>min</code> i <code>max</code> bez autoboxingu.</div></div></div></section>
+
+    <section class="slide" id="reduce" data-title="Reduce" aria-labelledby="reduce-title"><div class="eyebrow">04 // REDUCE</div><h2 id="reduce-title">Wiele elementów → jedna wartość</h2><div class="two-col"><div><p>Redukcja łączy kolejne elementy w akumulator. Operacja powinna być łączna i pozbawiona efektów ubocznych.</p><div class="syntax"><span>identity + accumulator <b>→</b> result</span><small>wartość początkowa i reguła łączenia</small></div></div><div class="code-panel"><pre><code><span class="kw">int</span> sum = numbers.stream()
+    .reduce(<span class="num">0</span>, Integer::sum);
+
+Optional&lt;Integer&gt; maximum = numbers.stream()
+    .reduce(Integer::max);
+
+String csv = names.stream()
+    .collect(Collectors.joining(<span class="str">", "</span>));</code></pre></div></div><div class="callout warning"><strong>Praktyka:</strong> dla sumy typów liczbowych wybierz wyspecjalizowany strumień; do budowania kolekcji użyj kolektora, nie mutowalnego <code>reduce</code>.</div></section>
+
+    <section class="slide example-slide" id="collect" data-title="Porównanie 07" aria-labelledby="collect-title"><div class="eyebrow">PORÓWNANIE 07 // GROUPING BY</div><h2 id="collect-title">Grupowanie obiektów według cechy</h2><div class="two-col"><div><span class="analysis-label">PĘTLA</span><div class="code-panel compact"><pre><code>Map&lt;Status, List&lt;Order&gt;&gt; byStatus =
+    <span class="kw">new</span> HashMap&lt;&gt;();
+<span class="kw">for</span> (Order order : orders) {
+    byStatus.computeIfAbsent(order.status(),
+        key -&gt; <span class="kw">new</span> ArrayList&lt;&gt;()).add(order);
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code>Map&lt;Status, List&lt;Order&gt;&gt; byStatus =
+    orders.stream().collect(
+        Collectors.groupingBy(Order::status));</code></pre></div><div class="analysis-answer">Kolektor zarządza tworzeniem kontenerów, dodawaniem elementów i łączeniem częściowych wyników.</div></div></div></section>
+
+    <section class="slide" id="collectors" data-title="Kolektory" aria-labelledby="collectors-title"><div class="eyebrow">05 // COLLECTORS</div><h2 id="collectors-title">Gotowe strategie agregacji</h2><div class="cards three"><article><span class="card-code">groupingBy</span><h3>Grupy</h3><p><code>Map&lt;K, List&lt;T&gt;&gt;</code> według wybranego klucza.</p></article><article><span class="card-code">partitioningBy</span><h3>Dwa zbiory</h3><p>Podział na elementy spełniające i niespełniające warunku.</p></article><article><span class="card-code">toMap</span><h3>Mapa</h3><p>Wymaga funkcji klucza, wartości, a czasem reguły kolizji.</p></article></div><div class="code-panel compact"><pre><code>Map&lt;String, Long&gt; countByCity = users.stream().collect(
+    Collectors.groupingBy(User::city, Collectors.counting()));</code></pre></div></section>
+
+    <section class="slide example-slide" id="numeric-collectors" data-title="Przykład 08" aria-labelledby="numeric-collectors-title"><div class="eyebrow">PRZYKŁAD 08 // KOLEKTORY LICZBOWE</div><h2 id="numeric-collectors-title">Suma, średnia, minimum i maksimum</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>OrderStatistics.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">int</span> sum = orders.stream().collect(
+    Collectors.summingInt(Order::amount));
+
+<span class="kw">double</span> average = orders.stream().collect(
+    Collectors.averagingInt(Order::amount));
+
+Optional&lt;Order&gt; smallest = orders.stream().collect(
+    Collectors.minBy(Comparator.comparingInt(Order::amount)));
+
+Optional&lt;Order&gt; largest = orders.stream().collect(
+    Collectors.maxBy(Comparator.comparingInt(Order::amount)));</code></pre></div><div class="analysis-panel"><span class="analysis-label">TYPY WYNIKÓW</span><h3>Wartość albo obiekt</h3><ol><li><code>summingInt</code> zwraca <code>Integer</code>.</li><li><code>averagingInt</code> zwraca <code>Double</code>.</li><li><code>minBy</code> i <code>maxBy</code> zwracają <code>Optional&lt;Order&gt;</code>.</li></ol><p class="hint"><code>Optional</code> reprezentuje możliwość braku wyniku dla pustego strumienia.</p></div></div></section>
+
+    <section class="slide example-slide" id="summary-statistics" data-title="Przykład 09" aria-labelledby="summary-statistics-title"><div class="eyebrow">PRZYKŁAD 09 // PODSUMOWANIE LICZBOWE</div><h2 id="summary-statistics-title">Wszystkie statystyki w jednym obiekcie</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>OrderSummary.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>IntSummaryStatistics stats = orders.stream()
+    .collect(Collectors.summarizingInt(Order::amount));
+
+<span class="kw">long</span> count = stats.getCount();
+<span class="kw">long</span> sum = stats.getSum();
+<span class="kw">double</span> average = stats.getAverage();
+<span class="kw">int</span> minimum = stats.getMin();
+<span class="kw">int</span> maximum = stats.getMax();</code></pre></div><div class="analysis-panel"><span class="analysis-label">JEDEN PRZEBIEG</span><h3><code>summarizingInt</code></h3><p>Kolektor oblicza liczbę elementów, sumę, średnią, minimum i maksimum podczas jednego przejścia przez strumień.</p><div class="type-map"><span><b>int</b> IntSummaryStatistics</span><span><b>long</b> LongSummaryStatistics</span><span><b>double</b> DoubleSummaryStatistics</span></div><p class="hint">Dostępne są również kolektory <code>summarizingLong</code> i <code>summarizingDouble</code>.</p></div></div></section>
+
+    <section class="slide example-slide" id="flatmap" data-title="Porównanie 10" aria-labelledby="flatmap-title"><div class="eyebrow">PORÓWNANIE 10 // FLATMAP</div><h2 id="flatmap-title">Spłaszczenie zagnieżdżonych kolekcji</h2><div class="two-col"><div><span class="analysis-label">DWIE PĘTLE</span><div class="code-panel compact"><pre><code>List&lt;String&gt; tags = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (Article article : articles) {
+    <span class="kw">for</span> (String tag : article.tags()) {
+        tags.add(tag);
+    }
+}</code></pre></div></div><div><span class="analysis-label">STREAM API</span><div class="code-panel compact"><pre><code>List&lt;String&gt; tags = articles.stream()
+    .flatMap(article -&gt; article.tags().stream())
+    .toList();</code></pre></div><div class="analysis-answer"><code>map</code> dałby <code>Stream&lt;List&lt;String&gt;&gt;</code>. <code>flatMap</code> łączy wewnętrzne strumienie w jeden <code>Stream&lt;String&gt;</code>.</div></div></div></section>
+
+    <section class="slide" id="one-use" data-title="Jednorazowość" aria-labelledby="one-use-title"><div class="eyebrow">06 // CYKL ŻYCIA</div><h2 id="one-use-title">Strumień wykorzystujemy tylko raz</h2><div class="two-col"><div class="code-panel"><pre><code>Stream&lt;String&gt; stream = names.stream();
+
+<span class="kw">long</span> count = stream.count();
+
+<span class="cm">// IllegalStateException:</span>
+<span class="cm">// stream.forEach(System.out::println);</span></code></pre></div><div><p>Po wykonaniu terminala strumień jest zamknięty. Jeśli potrzebujesz drugiego przebiegu, utwórz nowy strumień ze źródła.</p><div class="callout"><strong>Zapamiętaj:</strong> kolekcję można przeglądać wielokrotnie; strumień reprezentuje pojedyncze przetwarzanie.</div></div></div></section>
+
+    <section class="slide example-slide" id="side-effects" data-title="Pułapka 01" aria-labelledby="effects-title"><div class="eyebrow">PUŁAPKA 01 // EFEKTY UBOCZNE</div><h2 id="effects-title">Nie przemycaj pętli do <code>forEach</code></h2><div class="two-col"><div><span class="analysis-label">PROBLEMATYCZNE</span><div class="code-panel compact"><pre><code>List&lt;String&gt; result = <span class="kw">new</span> ArrayList&lt;&gt;();
+users.stream()
+    .filter(User::active)
+    .forEach(user -&gt; result.add(user.name()));</code></pre></div></div><div><span class="analysis-label">DEKLARATYWNIE</span><div class="code-panel compact"><pre><code>List&lt;String&gt; result = users.stream()
+    .filter(User::active)
+    .map(User::name)
+    .toList();</code></pre></div><div class="analysis-answer">Zewnętrzna mutacja utrudnia testowanie i staje się niebezpieczna przy przetwarzaniu równoległym.</div></div></div></section>
+
+    <section class="slide" id="immutability" data-title="Wynik toList" aria-labelledby="immutable-title"><div class="eyebrow">07 // TO LIST</div><h2 id="immutable-title"><code>Stream.toList()</code> zwraca listę niemodyfikowalną</h2><div class="two-col"><div class="code-panel"><pre><code>List&lt;String&gt; names = users.stream()
+    .map(User::name)
+    .toList();
+
+<span class="cm">// names.add("Ada");</span>
+<span class="cm">// UnsupportedOperationException</span>
+
+List&lt;String&gt; mutable = users.stream()
+    .map(User::name)
+    .collect(Collectors.toCollection(ArrayList::new));</code></pre></div><div><p>Dobierz sposób zebrania wyniku do kontraktu. Niemodyfikowalna lista jest dobrym domyślnym wyborem, gdy wynik ma być tylko odczytywany.</p><div class="callout warning"><strong>Uwaga:</strong> niemodyfikowalna lista nie oznacza, że obiekty znajdujące się w niej są niemutowalne.</div></div></div></section>
+
+    <section class="slide" id="parallel" data-title="Strumienie równoległe" aria-labelledby="parallel-title"><div class="eyebrow">08 // PARALLEL STREAM</div><h2 id="parallel-title">Równolegle nie znaczy automatycznie szybciej</h2><div class="cards three"><article><span class="card-code">dużo danych</span><h3>Koszt pracy</h3><p>Operacje muszą być na tyle kosztowne, by opłacił się podział pracy.</p></article><article><span class="card-code">stateless</span><h3>Brak współdzielenia</h3><p>Lambdy nie powinny modyfikować wspólnego stanu.</p></article><article><span class="card-code">measure</span><h3>Pomiar</h3><p>Decyzję podejmujemy na podstawie benchmarku, nie długości kodu.</p></article></div><div class="code-panel compact"><pre><code><span class="kw">long</span> count = values.parallelStream().filter(this::expensiveTest).count();</code></pre></div><div class="question"><span>Zasada</span> Zacznij od zwykłego strumienia. Użyj równoległego dopiero dla mierzalnej korzyści i bezpiecznych operacji.</div></section>
+
+    <section class="slide example-slide" id="debug" data-title="Diagnostyka" aria-labelledby="debug-title"><div class="eyebrow">09 // DEBUGOWANIE</div><h2 id="debug-title">Nazwij złożone reguły, podglądaj ostrożnie</h2><div class="two-col"><div class="code-panel"><pre><code>Predicate&lt;Order&gt; highValue =
+    order -&gt; order.total().compareTo(limit) &gt; <span class="num">0</span>;
+
+List&lt;String&gt; ids = orders.stream()
+    .filter(highValue)
+    .peek(order -&gt; log.debug(<span class="str">"Selected {}"</span>, order.id()))
+    .map(Order::id)
+    .toList();</code></pre></div><div class="analysis-panel"><span class="analysis-label">CZYTELNOŚĆ</span><h3>Potok ma opowiadać historię</h3><ol><li>Nazwij regułę domenową.</li><li>Łam potok na logiczne etapy.</li><li><code>peek</code> traktuj jako narzędzie diagnostyczne.</li><li>Gdy pętla jest prostsza — użyj pętli.</li></ol></div></div></section>
+
+    <section class="slide" id="when-loop" data-title="Kiedy pętla" aria-labelledby="loop-title"><div class="eyebrow">10 // DOBÓR NARZĘDZIA</div><h2 id="loop-title">Stream API nie zastępuje każdej pętli</h2><div class="two-col"><div><h3>Wybierz strumień, gdy…</h3><ul class="mission-list"><li>tworzysz wynik z sekwencji danych,</li><li>potok składa się z wyboru, transformacji i agregacji,</li><li>operacje są bezstanowe i łatwe do nazwania.</li></ul></div><div><h3>Wybierz pętlę, gdy…</h3><ul class="mission-list"><li>algorytm ma złożony, zmienny stan,</li><li>potrzebujesz precyzyjnego sterowania przebiegiem,</li><li>wersja strumieniowa ukrywa intencję zamiast ją wyjaśniać.</li></ul></div></div><div class="final-line"><strong>CEL</strong> = czytelny kod, a nie maksymalna liczba wywołań <code>stream()</code></div></section>
+
+    <section class="slide example-slide" id="live-coding" data-title="Live coding" aria-labelledby="live-title"><div class="eyebrow">LIVE CODING // 8 MIN</div><h2 id="live-title">Raport sprzedaży</h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">ZADANIE DLA GRUPY</span><h3>Zbuduj potok</h3><p>Dla opłaconych zamówień pogrupuj łączną wartość sprzedaży według miasta klienta.</p><ol><li>Odfiltruj nieopłacone zamówienia.</li><li>Pogrupuj według miasta.</li><li>Użyj kolektora sumującego wartość.</li></ol><p class="path">examples/stream-examples/src/main/java/…/App.java</p></div><div><div class="code-panel"><div class="code-head"><span>SalesReport.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Map&lt;String, Integer&gt; totals = orders.stream()
+    .filter(________________)
+    .collect(Collectors.groupingBy(
+        ____________________,
+        Collectors.summingInt(____________)));</code></pre></div><button class="reveal-btn" type="button" aria-expanded="false" data-target="live-solution">Pokaż rozwiązanie</button><div class="reveal" id="live-solution" hidden><code>.filter(Order::paid).collect(groupingBy(Order::city, summingInt(Order::amount)))</code></div></div></div></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // DOBÓR OPERACJI</div><h2 id="quiz-title">Która operacja pasuje?</h2><div class="quiz-grid"><article><h3>1. Jeden do jednego</h3><p>Zamiana każdego <code>User</code> na <code>UserDto</code>.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>map</code></div></article><article><h3>2. Wiele do jednego</h3><p>Połączenie list pozycji ze wszystkich zamówień.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>flatMap</code></div></article><article><h3>3. Klucz do grupy</h3><p>Mapa pracowników według działu.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden><code>collect(groupingBy(...))</code></div></article></div><div class="final-line"><strong>STREAM API</strong> = źródło + leniwe operacje pośrednie + jeden terminal</div></section>
+
+    <section class="slide example-slide" id="challenge" data-title="Przykład finałowy" aria-labelledby="challenge-title"><div class="eyebrow">PRZYKŁAD FINAŁOWY // REFAKTORYZACJA</div><h2 id="challenge-title">Od zagnieżdżonych pętli do potoku</h2><div class="two-col"><div class="code-panel compact"><pre><code>Set&lt;String&gt; result = <span class="kw">new</span> TreeSet&lt;&gt;();
+<span class="kw">for</span> (Order order : orders) {
+    <span class="kw">if</span> (order.paid()) {
+        <span class="kw">for</span> (Item item : order.items()) {
+            <span class="kw">if</span> (item.quantity() &gt;= <span class="num">2</span>) {
+                result.add(item.name());
+            }
+        }
+    }
+}</code></pre></div><div><div class="code-panel compact"><pre><code>Set&lt;String&gt; result = orders.stream()
+    .filter(Order::paid)
+    .flatMap(order -&gt; order.items().stream())
+    .filter(item -&gt; item.quantity() &gt;= <span class="num">2</span>)
+    .map(Item::name)
+    .collect(Collectors.toCollection(TreeSet::new));</code></pre></div><div class="analysis-panel"><span class="analysis-label">PRZEŚLEDŹ TYPY</span><ol><li><code>Stream&lt;Order&gt;</code></li><li><code>Stream&lt;Item&gt;</code></li><li><code>Stream&lt;String&gt;</code></li><li><code>Set&lt;String&gt;</code></li></ol></div></div></div></section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

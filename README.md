@@ -6,6 +6,7 @@ Dostępne wykłady:
 
 - „Generyki i wildcardy” — `lectures/generics/index.html`;
 - „Wyrażenia lambda” — `lectures/lambdas/index.html`.
+- „Stream API” — `lectures/streams/index.html`.
 
 ## Uruchomienie strony
 
