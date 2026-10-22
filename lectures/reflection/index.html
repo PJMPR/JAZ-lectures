@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wykład Java 21: refleksja i badanie definicji klas w czasie działania programu.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // Refleksja</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ Refleksja">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // REFLECTION API</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>TYPE <b>DISCOVERED</b></span><span>RUNTIME <b>READY</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">25</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 04 // 45 MIN // JAVA 21</div><div class="hero-grid"><div><p class="kicker">OBIEKT → CLASS → METADANE</p><h1 id="intro-title">Refleksja<br><em>w Javie</em></h1><p class="lead">Jak program może w czasie działania rozpoznać strukturę klasy, odczytać jej elementy i świadomie z nich skorzystać.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>uzyskasz i zinterpretujesz obiekt <code>Class&lt;?&gt;</code>,</li><li>zbadasz pola, konstruktory, metody i hierarchię typu,</li><li>wywołasz konstruktor lub metodę i ocenisz koszt takiego rozwiązania.</li></ul></div></div><div class="reactor" aria-hidden="true"><div class="ring ring-a"></div><div class="ring ring-b"></div><div class="core">::</div><span class="orbit o1">C</span><span class="orbit o2">F</span><span class="orbit o3">M</span></div></div>
+      <aside class="speaker-note">Zacznij od pytania: skąd framework wie, jakie konstruktory i metody ma klasa napisana przez użytkownika?</aside>
+    </section>
+
+    <section class="slide example-slide" id="motivation" data-title="Motywacja" aria-labelledby="motivation-title"><div class="eyebrow">PRZYKŁAD 00 // KOD NIE ZNA TYPU</div><h2 id="motivation-title">Inspektor dowolnego obiektu</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">static void</span> inspect(Object value) {
+    Class&lt;?&gt; type = value.getClass();
+    System.out.println(type.getName());
+
+    <span class="kw">for</span> (Method method : type.getDeclaredMethods()) {
+        System.out.println(method.getName());
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">RÓŻNICA</span><h3>Informacja dostępna w runtime</h3><p>Kompilator widzi tylko <code>Object</code>. Uruchomiony program może jednak poznać rzeczywistą klasę przekazanej wartości i zbadać jej definicję.</p></div></div></section>
+
+    <section class="slide" id="definition" data-title="Definicja" aria-labelledby="definition-title"><div class="eyebrow">01 // MODEL</div><h2 id="definition-title">Refleksja opisuje kod za pomocą obiektów</h2><div class="cards three"><article><span class="card-code">Class&lt;?&gt;</span><h3>Typ</h3><p>Nazwa, pakiet, modyfikatory, nadklasa i interfejsy.</p></article><article><span class="card-code">Member</span><h3>Elementy</h3><p><code>Field</code>, <code>Constructor</code> i <code>Method</code> opisują składniki klasy.</p></article><article><span class="card-code">java.lang.reflect</span><h3>API</h3><p>Standardowe typy pozwalają przeglądać i wykorzystywać tę strukturę.</p></article></div><div class="callout"><strong>Metadane:</strong> refleksja pracuje na opisie programu, a nie na tekście pliku źródłowego.</div></section>
+
+    <section class="slide example-slide" id="class-object" data-title="Class" aria-labelledby="class-title"><div class="eyebrow">02 // TRZY DROGI</div><h2 id="class-title">Jak uzyskać obiekt <code>Class</code>?</h2><div class="code-panel"><div class="code-head"><span>ClassObjects.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code>Class&lt;String&gt; fromLiteral = String.class;
+Class&lt;? <span class="kw">extends</span> String&gt; fromObject = <span class="str">"JAZ"</span>.getClass();
+Class&lt;?&gt; fromName = Class.forName(<span class="str">"java.lang.String"</span>);
+
+System.out.println(fromLiteral == fromObject); <span class="cm">// true</span></code></pre></div><div class="type-map"><span><b>.class</b> gdy typ jest znany w kodzie</span><span><b>getClass()</b> gdy mamy obiekt</span><span><b>forName</b> gdy nazwę poznajemy w runtime</span></div></section>
+
+    <section class="slide" id="class-identity" data-title="Tożsamość" aria-labelledby="identity-title"><div class="eyebrow">03 // TOŻSAMOŚĆ TYPU</div><h2 id="identity-title">Jedna załadowana klasa — jeden obiekt <code>Class</code></h2><div class="two-col"><div><p>Literał klasy nie tworzy instancji badanego typu. Reprezentuje definicję załadowaną przez konkretny class loader.</p><div class="callout warning"><strong>Ważne:</strong> pełna tożsamość klasy zależy od jej nazwy oraz loadera, który ją załadował.</div></div><div class="code-panel"><pre><code>Class&lt;?&gt; type = ArrayList.class;
+
+type.getName();          <span class="cm">// java.util.ArrayList</span>
+type.getSimpleName();    <span class="cm">// ArrayList</span>
+type.getPackageName();   <span class="cm">// java.util</span>
+type.getClassLoader();</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="kind" data-title="Rodzaj typu" aria-labelledby="kind-title"><div class="eyebrow">04 // KLASYFIKACJA</div><h2 id="kind-title">Nie każdy <code>Class</code> opisuje zwykłą klasę</h2><div class="two-col"><div class="code-panel compact"><pre><code>type.isInterface();
+type.isEnum();
+type.isRecord();
+type.isArray();
+type.isPrimitive();
+type.isSynthetic();</code></pre></div><div class="analysis-panel"><span class="analysis-label">PRZYKŁADY</span><ol><li><code>Runnable.class</code> — interfejs</li><li><code>Thread.State.class</code> — enum</li><li><code>User.class</code> — rekord lub klasa</li><li><code>String[].class</code> — tablica</li><li><code>int.class</code> — typ prymitywny</li></ol></div></div></section>
+
+    <section class="slide" id="modifiers" data-title="Modyfikatory" aria-labelledby="modifiers-title"><div class="eyebrow">05 // MODIFIERS</div><h2 id="modifiers-title">Modyfikatory są zakodowane jako maska bitowa</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">int</span> modifiers = type.getModifiers();
+
+Modifier.isPublic(modifiers);
+Modifier.isAbstract(modifiers);
+Modifier.isFinal(modifiers);
+
+String text = Modifier.toString(modifiers);</code></pre></div><div><p>Ta sama klasa <code>Modifier</code> interpretuje modyfikatory klas i ich elementów. Nie porównujemy liczby z „magiczną” wartością.</p><div class="syntax"><span>PUBLIC | FINAL <b>→</b> int</span><small>każdy bit reprezentuje osobną cechę</small></div></div></div></section>
+
+    <section class="slide example-slide" id="hierarchy" data-title="Hierarchia" aria-labelledby="hierarchy-title"><div class="eyebrow">06 // RELACJE</div><h2 id="hierarchy-title">Nadklasa, interfejsy i zgodność typów</h2><div class="two-col"><div class="code-panel"><pre><code>Class&lt;?&gt; type = ArrayList.class;
+
+Class&lt;?&gt; parent = type.getSuperclass();
+Class&lt;?&gt;[] interfaces = type.getInterfaces();
+
+List.class.isAssignableFrom(type); <span class="cm">// true</span>
+type.isInstance(<span class="kw">new</span> ArrayList&lt;&gt;()); <span class="cm">// true</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">CZYTAJ JAK PYTANIE</span><h3><code>A.isAssignableFrom(B)</code></h3><p>Czy wartość typu <code>B</code> można przypisać do zmiennej typu <code>A</code>?</p><p class="hint">Kierunek jest częstym źródłem pomyłek.</p></div></div></section>
+
+    <section class="slide" id="declared-public" data-title="Zakres" aria-labelledby="scope-title"><div class="eyebrow">07 // DECLARED VS PUBLIC</div><h2 id="scope-title">„Zadeklarowane tutaj” to nie to samo co „publicznie dostępne”</h2><div class="two-col"><div><h3><code>getDeclared…()</code></h3><ul class="mission-list"><li>elementy zapisane bezpośrednio w klasie,</li><li>wszystkie poziomy dostępu,</li><li>bez elementów odziedziczonych.</li></ul></div><div><h3><code>get…()</code></h3><ul class="mission-list"><li>tylko elementy publiczne,</li><li>łącznie z odziedziczonymi,</li><li>zgodnie z publicznym API typu.</li></ul></div></div><div class="final-line"><strong>DOBÓR METODY</strong> zależy od pytania, które zadaje inspektor.</div></section>
+
+    <section class="slide example-slide" id="fields" data-title="Pola" aria-labelledby="fields-title"><div class="eyebrow">08 // FIELD</div><h2 id="fields-title">Badanie pól klasy</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">for</span> (Field field : type.getDeclaredFields()) {
+    System.out.printf(<span class="str">"%s %s %s%n"</span>,
+        Modifier.toString(field.getModifiers()),
+        field.getType().getSimpleName(),
+        field.getName());
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">FIELD OPISUJE</span><ol><li>nazwę pola,</li><li>typ deklarowany,</li><li>modyfikatory,</li><li>klasę deklarującą,</li><li>wartość dla wskazanej instancji.</li></ol></div></div></section>
+
+    <section class="slide example-slide" id="field-value" data-title="Wartość pola" aria-labelledby="field-value-title"><div class="eyebrow">09 // ODCZYT</div><h2 id="field-value-title">Opis pola i wartość pola to dwie różne rzeczy</h2><div class="two-col"><div class="code-panel"><pre><code>Product product = <span class="kw">new</span> Product(<span class="str">"K-1"</span>, <span class="num">42</span>);
+Field field = Product.class.getDeclaredField(<span class="str">"stock"</span>);
+
+<span class="kw">if</span> (field.trySetAccessible()) {
+    Object value = field.get(product);
+    System.out.println(value); <span class="cm">// 42</span>
+}</code></pre></div><div><p><code>Field</code> reprezentuje element definicji. Dopiero <code>get(product)</code> odczytuje go z konkretnego obiektu.</p><div class="callout warning"><strong>Hermetyzacja:</strong> wymuszanie dostępu zwiększa sprzężenie i może zostać ograniczone przez system modułów.</div></div></div></section>
+
+    <section class="slide example-slide" id="constructors" data-title="Konstruktory" aria-labelledby="constructors-title"><div class="eyebrow">10 // CONSTRUCTOR</div><h2 id="constructors-title">Konstruktor można znaleźć po typach parametrów</h2><div class="two-col"><div class="code-panel"><pre><code>Constructor&lt;Product&gt; constructor =
+    Product.class.getDeclaredConstructor(
+        String.class, <span class="kw">int</span>.class);
+
+Product product = constructor.newInstance(<span class="str">"K-2"</span>, <span class="num">10</span>);</code></pre></div><div class="analysis-panel"><span class="analysis-label">DOPASOWANIE</span><h3>Sygnatura musi być dokładna</h3><p>Kolejność i typy argumentów mają znaczenie. <code>int.class</code> i <code>Integer.class</code> opisują inne sygnatury.</p></div></div></section>
+
+    <section class="slide example-slide" id="methods" data-title="Metody" aria-labelledby="methods-title"><div class="eyebrow">11 // METHOD</div><h2 id="methods-title">Metodę identyfikuje nazwa i lista parametrów</h2><div class="two-col"><div class="code-panel"><pre><code>Method method = Product.class.getDeclaredMethod(
+    <span class="str">"reserve"</span>, <span class="kw">int</span>.class);
+
+Object result = method.invoke(product, <span class="num">3</span>);
+System.out.println(result);</code></pre></div><div class="analysis-panel"><span class="analysis-label">METHOD OPISUJE</span><ol><li>typ zwracany i nazwę,</li><li>typy parametrów i wyjątków,</li><li>modyfikatory i klasę deklarującą,</li><li>możliwość wywołania dla instancji.</li></ol></div></div></section>
+
+    <section class="slide" id="invoke" data-title="Wywołanie" aria-labelledby="invoke-title"><div class="eyebrow">12 // INVOKE</div><h2 id="invoke-title"><code>invoke</code> przesuwa część kontroli do runtime</h2><div class="cards three"><article><span class="card-code">target</span><h3>Odbiorca</h3><p>Instancja dla metody obiektowej; <code>null</code> dla metody statycznej.</p></article><article><span class="card-code">Object...</span><h3>Argumenty</h3><p>Niepoprawna liczba lub typ zostaną wykryte dopiero podczas wykonania.</p></article><article><span class="card-code">Object</span><h3>Wynik</h3><p>Typ wyniku trzeba sprawdzić lub jawnie rzutować.</p></article></div><div class="callout"><strong>Trade-off:</strong> elastyczność rośnie, ale tracimy część pomocy kompilatora.</div></section>
+
+    <section class="slide example-slide" id="exceptions" data-title="Wyjątki" aria-labelledby="exceptions-title"><div class="eyebrow">13 // OBSŁUGA BŁĘDÓW</div><h2 id="exceptions-title">Dwa miejsca, w których może nie wyjść</h2><div class="two-col"><div><span class="analysis-label">WYSZUKIWANIE</span><div class="code-panel compact"><pre><code><span class="kw">try</span> {
+    Method m = type.getDeclaredMethod(<span class="str">"run"</span>);
+} <span class="kw">catch</span> (NoSuchMethodException e) {
+    <span class="cm">// definicja nie pasuje</span>
+}</code></pre></div></div><div><span class="analysis-label">WYKONANIE</span><div class="code-panel compact"><pre><code><span class="kw">try</span> {
+    m.invoke(target);
+} <span class="kw">catch</span> (InvocationTargetException e) {
+    Throwable cause = e.getCause();
+}</code></pre></div><div class="analysis-answer"><code>InvocationTargetException</code> opakowuje wyjątek rzucony przez wywołaną metodę.</div></div></div></section>
+
+    <section class="slide example-slide" id="parameters" data-title="Parametry" aria-labelledby="parameters-title"><div class="eyebrow">14 // PARAMETER</div><h2 id="parameters-title">Nazwy parametrów mogą nie trafić do bytecode</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">for</span> (Parameter parameter : method.getParameters()) {
+    System.out.println(parameter.getName());
+    System.out.println(parameter.getType());
+    System.out.println(parameter.isNamePresent());
+}</code></pre></div><div><p>Bez opcji kompilatora <code>-parameters</code> program może zobaczyć nazwy techniczne, np. <code>arg0</code>. Typy i kolejność parametrów nadal są dostępne.</p><div class="callout"><strong>Maven:</strong> ustaw <code>&lt;parameters&gt;true&lt;/parameters&gt;</code>, jeśli nazwy są częścią kontraktu narzędzia.</div></div></div></section>
+
+    <section class="slide example-slide" id="generics" data-title="Typy generyczne" aria-labelledby="generics-title"><div class="eyebrow">15 // TYPE API</div><h2 id="generics-title">Typ surowy i deklaracja generyczna</h2><div class="two-col"><div class="code-panel"><pre><code>Field field = Catalog.class.getDeclaredField(<span class="str">"products"</span>);
+
+Class&lt;?&gt; raw = field.getType();
+Type generic = field.getGenericType();
+
+<span class="cm">// raw: interface java.util.List</span>
+<span class="cm">// generic: java.util.List&lt;Product&gt;</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">ERASURE</span><h3>Nie wszystko znika</h3><p>Instancja listy nie pamięta swojego argumentu typu, ale deklaracja pola lub metody może zachować podpis generyczny w pliku klasy.</p></div></div></section>
+
+    <section class="slide" id="type-family" data-title="Type" aria-labelledby="type-title"><div class="eyebrow">16 // RODZINA TYPE</div><h2 id="type-title"><code>Type</code> ma kilka reprezentacji</h2><div class="cards three"><article><span class="card-code">Class</span><h3>Konkretny typ</h3><p><code>String</code>, <code>int</code> albo typ tablicowy.</p></article><article><span class="card-code">ParameterizedType</span><h3>Typ z argumentami</h3><p>Na przykład <code>Map&lt;String, Product&gt;</code>.</p></article><article><span class="card-code">TypeVariable</span><h3>Zmienna typu</h3><p>Na przykład <code>T</code> w deklaracji <code>Box&lt;T&gt;</code>.</p></article></div><div class="code-panel compact"><pre><code><span class="kw">if</span> (generic <span class="kw">instanceof</span> ParameterizedType p) {
+    System.out.println(Arrays.toString(p.getActualTypeArguments()));
+}</code></pre></div></section>
+
+    <section class="slide example-slide" id="records" data-title="Rekordy" aria-labelledby="records-title"><div class="eyebrow">17 // RECORD COMPONENT</div><h2 id="records-title">Rekord udostępnia swój model danych</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">if</span> (type.isRecord()) {
+    <span class="kw">for</span> (RecordComponent component
+            : type.getRecordComponents()) {
+        System.out.println(component.getName());
+        System.out.println(component.getType());
+        System.out.println(component.getAccessor());
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">SEMANTYKA</span><p><code>RecordComponent</code> opisuje składnik nagłówka rekordu. Jest lepszym modelem rekordu niż traktowanie go wyłącznie jako zbioru pól.</p></div></div></section>
+
+    <section class="slide" id="arrays" data-title="Tablice" aria-labelledby="arrays-title"><div class="eyebrow">18 // ARRAY</div><h2 id="arrays-title">Tablice też można obsłużyć bez znajomości typu elementu</h2><div class="two-col"><div class="code-panel"><pre><code>Object values = <span class="kw">new int</span>[] { <span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span> };
+
+Class&lt;?&gt; type = values.getClass();
+System.out.println(type.getComponentType());
+
+<span class="kw">int</span> length = Array.getLength(values);
+Object first = Array.get(values, <span class="num">0</span>);</code></pre></div><div><p><code>java.lang.reflect.Array</code> działa zarówno dla tablic obiektów, jak i tablic typów prymitywnych.</p><div class="callout"><strong>Praktyka:</strong> przydatne w ogólnych serializerach, mapperach i narzędziach diagnostycznych.</div></div></div></section>
+
+    <section class="slide" id="use-cases" data-title="Zastosowania" aria-labelledby="uses-title"><div class="eyebrow">19 // GDZIE TO DZIAŁA</div><h2 id="uses-title">Refleksja jest mechanizmem infrastruktury</h2><div class="cards three"><article><span class="card-code">framework</span><h3>Tworzenie obiektów</h3><p>Kontenery i fabryki odkrywają konstruktory oraz zależności.</p></article><article><span class="card-code">mapping</span><h3>Mapowanie danych</h3><p>Biblioteki wiążą nazwy i typy danych ze strukturą obiektu.</p></article><article><span class="card-code">testing</span><h3>Narzędzia</h3><p>Testy, inspektory i pluginy odnajdują elementy według ustalonej konwencji.</p></article></div></section>
+
+    <section class="slide" id="costs" data-title="Koszty" aria-labelledby="costs-title"><div class="eyebrow">20 // TRADE-OFF</div><h2 id="costs-title">Elastyczność ma cenę</h2><div class="two-col"><div><h3>Ryzyka</h3><ul class="mission-list"><li>błędy przesunięte z kompilacji do runtime,</li><li>słabsza nawigacja i refaktoryzacja w IDE,</li><li>naruszenie granic hermetyzacji,</li><li>dodatkowy koszt wyszukania i wywołania.</li></ul></div><div><h3>Ogranicz koszt</h3><ul class="mission-list"><li>waliduj kontrakt na starcie aplikacji,</li><li>buforuj znalezione metadane,</li><li>zamknij refleksję w małym komponencie,</li><li>preferuj zwykłe wywołania w kodzie domenowym.</li></ul></div></div></section>
+
+    <section class="slide example-slide" id="live-coding" data-title="Live coding" aria-labelledby="live-title"><div class="eyebrow">LIVE CODING // 8 MIN</div><h2 id="live-title">Uniwersalny opis klasy</h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">ZADANIE DLA GRUPY</span><h3>Zbuduj inspektor</h3><p>Dla dowolnego <code>Class&lt;?&gt;</code> wypisz nazwę typu, nadklasę oraz zadeklarowane pola i metody.</p><ol><li>Odczytaj podstawowe dane klasy.</li><li>Przejdź po polach.</li><li>Przejdź po metodach i ich parametrach.</li></ol><p class="path">examples/reflection-examples/src/main/java/…/ClassInspector.java</p></div><div><div class="code-panel"><pre><code><span class="kw">static void</span> describe(Class&lt;?&gt; type) {
+    System.out.println(________________);
+
+    <span class="kw">for</span> (Field field : ________________) {
+        System.out.println(field.getName());
+    }
+    <span class="kw">for</span> (Method method : ______________) {
+        System.out.println(method.getName());
+    }
+}</code></pre></div><button class="reveal-btn" type="button" aria-expanded="false" data-target="live-solution">Pokaż rozwiązanie</button><div class="reveal" id="live-solution" hidden><code>type.getName(), type.getDeclaredFields(), type.getDeclaredMethods()</code></div></div></div></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // DOBÓR API</div><h2 id="quiz-title">Która operacja pasuje?</h2><div class="quiz-grid"><article><h3>1. Rzeczywisty typ obiektu</h3><p>Mamy wartość jako <code>Object</code>.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>value.getClass()</code></div></article><article><h3>2. Prywatne pola tej klasy</h3><p>Bez pól odziedziczonych.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>getDeclaredFields()</code></div></article><article><h3>3. Publiczna metoda</h3><p>Także odziedziczona.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden><code>getMethod(name, types)</code></div></article></div><div class="final-line"><strong>REFLEKSJA</strong> = odkrycie definicji + walidacja kontraktu + kontrolowane użycie</div></section>
+
+    <section class="slide example-slide" id="challenge" data-title="Przykład finałowy" aria-labelledby="challenge-title"><div class="eyebrow">PRZYKŁAD FINAŁOWY // MINI FRAMEWORK</div><h2 id="challenge-title">Uruchom metodę wskazaną konfiguracją</h2><div class="two-col"><div class="code-panel compact"><pre><code>String className = <span class="str">"pl.pjatk.jaz.reflection.Task"</span>;
+String methodName = <span class="str">"execute"</span>;
+
+Class&lt;?&gt; type = Class.forName(className);
+Object task = type.getDeclaredConstructor().newInstance();
+Method method = type.getMethod(methodName);
+method.invoke(task);</code></pre></div><div class="analysis-panel"><span class="analysis-label">PRZEŚLEDŹ ETAPY</span><ol><li>załaduj definicję po nazwie,</li><li>sprawdź wymagany kontrakt,</li><li>utwórz instancję,</li><li>znajdź i wywołaj metodę,</li><li>obsłuż przyczynę ewentualnego błędu.</li></ol><p class="hint">W produkcji każdy etap powinien zgłosić czytelny błąd konfiguracji.</p></div></div></section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
