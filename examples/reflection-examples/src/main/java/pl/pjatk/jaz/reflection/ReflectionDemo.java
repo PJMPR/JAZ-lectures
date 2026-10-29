@@ -30,6 +30,7 @@ public final class ReflectionDemo {
             throws ReflectiveOperationException {
         Method method = target.getClass().getMethod(methodName, parameterTypes);
         try {
+            method.setAccessible(true);
             return method.invoke(target, arguments);
         } catch (InvocationTargetException exception) {
             Throwable cause = exception.getCause();

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wykład Java 21: definicja adnotacji, ich parametry i przetwarzanie za pomocą refleksji.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // Adnotacje</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ Adnotacje">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // ANNOTATIONS</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>METADATA <b>VISIBLE</b></span><span>RUNTIME <b>READY</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">23</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 05 // 45 MIN // JAVA 21</div>
+      <div class="hero-grid"><div><p class="kicker">KOD + METADANE + REFLEKSJA</p><h1 id="intro-title">Adnotacje<br><em>w Javie</em></h1><p class="lead">Jak opisywać elementy programu, definiować własne adnotacje i budować mechanizm, który interpretuje je w czasie działania.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>zdefiniujesz adnotację i jej elementy,</li><li>dobierzesz cel oraz czas przechowywania metadanych,</li><li>odczytasz adnotacje za pomocą refleksji i wykorzystasz ich wartości.</li></ul></div></div><div class="reactor" aria-hidden="true"><div class="ring ring-a"></div><div class="ring ring-b"></div><div class="core">@</div><span class="orbit o1">T</span><span class="orbit o2">R</span><span class="orbit o3">A</span></div></div>
+      <aside class="speaker-note">Zacznij od pytania: skąd framework wie, że konkretną metodę należy uruchomić albo pole powiązać z danymi?</aside>
+    </section>
+
+    <section class="slide example-slide" id="motivation" data-title="Motywacja" aria-labelledby="motivation-title"><div class="eyebrow">PRZYKŁAD 00 // ZNACZNIK W KODZIE</div><h2 id="motivation-title">Metoda przeznaczona do uruchomienia</h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>CleanupJob.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">class</span> CleanupJob {
+    <span class="kw">@Scheduled</span>(delaySeconds = <span class="num">30</span>)
+    <span class="kw">public void</span> removeExpiredFiles() {
+        <span class="cm">// kod zadania</span>
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">PYTANIE</span><h3>Co daje zapis <code>@Scheduled</code>?</h3><p>Metoda otrzymuje metadane. Inny fragment programu może je odnaleźć, odczytać parametr i zdecydować, kiedy wywołać metodę.</p></div></div></section>
+
+    <section class="slide" id="definition" data-title="Definicja" aria-labelledby="definition-title"><div class="eyebrow">01 // MODEL</div><h2 id="definition-title">Adnotacja opisuje element programu</h2><div class="cards three"><article><span class="card-code">@Override</span><h3>Informacja dla kompilatora</h3><p>Kompilator sprawdza, czy metoda rzeczywiście nadpisuje inną metodę.</p></article><article><span class="card-code">@Deprecated</span><h3>Informacja dla narzędzi</h3><p>IDE i dokumentacja ostrzegają przed użyciem starego API.</p></article><article><span class="card-code">@Entity</span><h3>Informacja dla frameworka</h3><p>Biblioteka wykrywa klasę i nadaje jej określone znaczenie.</p></article></div><div class="callout"><strong>Adnotacja nie wykonuje kodu:</strong> znaczenie nadaje jej kompilator, narzędzie albo kod, który ją przetwarza.</div></section>
+
+    <section class="slide example-slide" id="built-in" data-title="Adnotacje standardowe" aria-labelledby="built-in-title"><div class="eyebrow">02 // STANDARD LIBRARY</div><h2 id="built-in-title">Adnotacje obecne w codziennym kodzie</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">@Override</span>
+<span class="kw">public</span> String toString() { ... }
+
+<span class="kw">@Deprecated</span>(since = <span class="str">"2.0"</span>, forRemoval = <span class="kw">true</span>)
+<span class="kw">public void</span> oldApi() { ... }
+
+<span class="kw">@SuppressWarnings</span>(<span class="str">"unchecked"</span>)
+<span class="kw">void</span> convert() { ... }</code></pre></div><div class="analysis-panel"><span class="analysis-label">ODBIORCA METADANYCH</span><ol><li><code>@Override</code> wspiera kontrolę kompilacji.</li><li><code>@Deprecated</code> opisuje cykl życia API.</li><li><code>@SuppressWarnings</code> steruje wybranymi ostrzeżeniami.</li></ol></div></div></section>
+
+    <section class="slide" id="declaration" data-title="Deklaracja" aria-labelledby="declaration-title"><div class="eyebrow">03 // @INTERFACE</div><h2 id="declaration-title">Własną adnotację deklaruje <code>@interface</code></h2><div class="two-col"><div class="code-panel"><div class="code-head"><span>Scheduled.java</span><button class="copy-btn" type="button">Kopiuj</button></div><pre><code><span class="kw">public @interface</span> Scheduled {
+    <span class="kw">long</span> delaySeconds();
+    String name() <span class="kw">default</span> <span class="str">"job"</span>;
+    <span class="kw">boolean</span> enabled() <span class="kw">default true</span>;
+}</code></pre></div><div><p>Element adnotacji przypomina metodę bez parametrów. Jego typ określa rodzaj wartości, którą można zapisać przy użyciu adnotacji.</p><div class="callout warning"><strong>Terminologia:</strong> specyfikacja mówi o elementach adnotacji. W praktyce często nazywa się je parametrami.</div></div></div></section>
+
+    <section class="slide example-slide" id="values" data-title="Wartości" aria-labelledby="values-title"><div class="eyebrow">04 // UŻYCIE</div><h2 id="values-title">Wartość wymagana i wartość domyślna</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">@Scheduled</span>(
+    delaySeconds = <span class="num">30</span>,
+    name = <span class="str">"cleanup"</span>
+)
+<span class="kw">void</span> clean() { }
+
+<span class="cm">// enabled przyjmie true</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">REGUŁA</span><h3>Brak <code>default</code> oznacza wartość obowiązkową</h3><p><code>delaySeconds</code> trzeba podać. Pozostałe elementy można pominąć, ponieważ deklaracja określa ich wartości domyślne.</p></div></div></section>
+
+    <section class="slide" id="allowed-types" data-title="Typy elementów" aria-labelledby="allowed-title"><div class="eyebrow">05 // DOZWOLONE TYPY</div><h2 id="allowed-title">Elementy adnotacji mają ograniczony zestaw typów</h2><div class="type-map"><span><b>01</b> typy prymitywne</span><span><b>02</b> <code>String</code></span><span><b>03</b> <code>Class</code></span><span><b>04</b> typy wyliczeniowe</span><span><b>05</b> inne adnotacje</span><span><b>06</b> jednowymiarowe tablice tych typów</span></div><div class="callout danger"><strong>Niedozwolone:</strong> dowolny obiekt, <code>null</code>, typ parametryzowany jako wartość i wielowymiarowa tablica.</div></section>
+
+    <section class="slide example-slide" id="value-shortcut" data-title="Element value" aria-labelledby="value-title"><div class="eyebrow">06 // SKRÓCONA SKŁADNIA</div><h2 id="value-title">Element <code>value</code> ma specjalny skrót</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">public @interface</span> Role {
+    String value();
+}
+
+<span class="kw">@Role</span>(<span class="str">"ADMIN"</span>)
+<span class="kw">class</span> AdminPanel { }
+
+<span class="cm">// równoważne: @Role(value = "ADMIN")</span></code></pre></div><div class="analysis-panel"><span class="analysis-label">WARUNEK</span><p>Nazwę można pominąć, gdy przypisujemy pojedynczą wartość do elementu o nazwie <code>value</code>. Przy kilku elementach stosujemy zwykły zapis <code>nazwa = wartość</code>.</p></div></div></section>
+
+    <section class="slide" id="meta" data-title="Metaadnotacje" aria-labelledby="meta-title"><div class="eyebrow">07 // ADNOTACJE ADNOTACJI</div><h2 id="meta-title">Metaadnotacje definiują kontrakt</h2><div class="cards three"><article><span class="card-code">@Target</span><h3>Miejsce użycia</h3><p>Określa, które elementy programu można oznaczyć.</p></article><article><span class="card-code">@Retention</span><h3>Czas przechowywania</h3><p>Decyduje, czy informacja trafi do pliku klasy i runtime.</p></article><article><span class="card-code">@Documented</span><h3>Dokumentacja</h3><p>Powoduje uwzględnienie adnotacji w wygenerowanym Javadoc.</p></article></div></section>
+
+    <section class="slide example-slide" id="target" data-title="Target" aria-labelledby="target-title"><div class="eyebrow">08 // ELEMENTTYPE</div><h2 id="target-title">Cel użycia ogranicza <code>@Target</code></h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">@Target</span>({
+    ElementType.TYPE,
+    ElementType.METHOD
+})
+<span class="kw">public @interface</span> Audited { }</code></pre></div><div class="analysis-panel"><span class="analysis-label">WYBRANE CELE</span><ol><li><code>TYPE</code> dla klasy, interfejsu, enum i rekordu.</li><li><code>FIELD</code> dla pola.</li><li><code>METHOD</code> dla metody.</li><li><code>PARAMETER</code> dla parametru.</li><li><code>ANNOTATION_TYPE</code> dla innej adnotacji.</li><li><code>TYPE_USE</code> dla użycia typu.</li></ol></div></div></section>
+
+    <section class="slide" id="retention" data-title="Retention" aria-labelledby="retention-title"><div class="eyebrow">09 // CYKL ŻYCIA</div><h2 id="retention-title">Retencja decyduje, kto zobaczy adnotację</h2><div class="annotation-pipeline" role="img" aria-label="Przepływ adnotacji od kodu źródłowego przez plik class do działania programu"><div><strong>SOURCE</strong><span>kod źródłowy</span></div><i>›</i><div><strong>CLASS</strong><span>plik .class</span></div><i>›</i><div><strong>RUNTIME</strong><span>refleksja</span></div></div><div class="cards three"><article><h3><code>SOURCE</code></h3><p>Znika po kompilacji. Dobre dla kontroli kompilatora i procesorów źródła.</p></article><article><h3><code>CLASS</code></h3><p>Trafia do pliku klasy, ale refleksja nie udostępnia jej w runtime.</p></article><article><h3><code>RUNTIME</code></h3><p>Pozostaje dostępna dla kodu działającego na JVM.</p></article></div></section>
+
+    <section class="slide example-slide" id="runtime-contract" data-title="Kontrakt runtime" aria-labelledby="runtime-title"><div class="eyebrow">10 // PEŁNA DEFINICJA</div><h2 id="runtime-title">Adnotacja przeznaczona dla refleksji</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">@Retention</span>(RetentionPolicy.RUNTIME)
+<span class="kw">@Target</span>(ElementType.METHOD)
+<span class="kw">@Documented</span>
+<span class="kw">public @interface</span> Scheduled {
+    <span class="kw">long</span> delaySeconds();
+    String name() <span class="kw">default</span> <span class="str">"job"</span>;
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">KONTRAKT</span><p>Refleksja ma odczytać adnotację, więc potrzebujemy <code>RUNTIME</code>. Framework ma szukać jej na metodach, więc wybieramy <code>METHOD</code>.</p></div></div></section>
+
+    <section class="slide" id="reflection-flow" data-title="Przetwarzanie" aria-labelledby="flow-title"><div class="eyebrow">11 // DIAGRAM</div><h2 id="flow-title">Od metadanych do zachowania programu</h2><div class="annotation-flow" role="img" aria-label="Proces od oznaczonego kodu do wywołania metody"><div><span>01</span><strong>Oznaczona metoda</strong><code>@Scheduled</code></div><i>›</i><div><span>02</span><strong>Refleksja</strong><code>getDeclaredMethods()</code></div><i>›</i><div><span>03</span><strong>Odczyt wartości</strong><code>getAnnotation()</code></div><i>›</i><div><span>04</span><strong>Decyzja</strong><code>invoke()</code></div></div><p class="final-line">Adnotacja dostarcza dane. <strong>Kod przetwarzający</strong> nadaje im znaczenie.</p></section>
+
+    <section class="slide example-slide" id="read-class" data-title="Odczyt z klasy" aria-labelledby="read-class-title"><div class="eyebrow">12 // ANNOTATED ELEMENT</div><h2 id="read-class-title">Sprawdzenie adnotacji na klasie</h2><div class="two-col"><div class="code-panel"><pre><code>Class&lt;?&gt; type = AdminPanel.class;
+
+<span class="kw">if</span> (type.isAnnotationPresent(Role.class)) {
+    Role role = type.getAnnotation(Role.class);
+    System.out.println(role.value());
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">API</span><h3><code>AnnotatedElement</code></h3><p><code>Class</code>, <code>Method</code>, <code>Field</code> i inne elementy refleksji udostępniają wspólny zestaw metod do badania adnotacji.</p></div></div></section>
+
+    <section class="slide example-slide" id="read-methods" data-title="Odczyt z metod" aria-labelledby="read-methods-title"><div class="eyebrow">13 // SKANOWANIE</div><h2 id="read-methods-title">Wyszukiwanie oznaczonych metod</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">for</span> (Method method : type.getDeclaredMethods()) {
+    Scheduled config = method.getAnnotation(Scheduled.class);
+
+    <span class="kw">if</span> (config != <span class="kw">null</span>) {
+        System.out.printf(<span class="str">"%s: %d s%n"</span>,
+            config.name(), config.delaySeconds());
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">WYNIK</span><p><code>getAnnotation</code> zwraca obiekt implementujący typ adnotacji albo <code>null</code>. Elementy odczytujemy jak metody: <code>config.name()</code>.</p></div></div></section>
+
+    <section class="slide example-slide" id="invoke" data-title="Wywołanie" aria-labelledby="invoke-title"><div class="eyebrow">14 // MINI FRAMEWORK</div><h2 id="invoke-title">Uruchomienie metody zgodnie z metadanymi</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">static void</span> runJobs(Object target) <span class="kw">throws</span> Exception {
+    <span class="kw">for</span> (Method method : target.getClass().getDeclaredMethods()) {
+        Scheduled job = method.getAnnotation(Scheduled.class);
+        <span class="kw">if</span> (job != <span class="kw">null</span> &amp;&amp; job.enabled()) {
+            method.invoke(target);
+        }
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">ZAŁOŻENIA</span><ol><li>Oznaczone metody nie przyjmują argumentów.</li><li>Instancja jest już utworzona.</li><li>Błędy wywołania wymagają świadomej obsługi.</li></ol></div></div></section>
+
+    <section class="slide" id="validation" data-title="Walidacja" aria-labelledby="validation-title"><div class="eyebrow">15 // KONTRAKT FRAMEWORKA</div><h2 id="validation-title">Refleksja wymaga walidacji założeń</h2><div class="two-col"><div><ul class="mission-list"><li>sprawdź liczbę i typy parametrów metody,</li><li>sprawdź modyfikatory oraz typ zwracany,</li><li>zgłoś czytelny błąd z nazwą klasy i metody,</li><li>waliduj konfigurację przed właściwym użyciem.</li></ul></div><div class="code-panel compact"><pre><code><span class="kw">if</span> (method.getParameterCount() != <span class="num">0</span>) {
+    <span class="kw">throw new</span> IllegalStateException(
+        <span class="str">"@Scheduled wymaga metody bez parametrów: "</span>
+        + method);
+}</code></pre></div></div></section>
+
+    <section class="slide example-slide" id="repeatable" data-title="Powtarzalne" aria-labelledby="repeatable-title"><div class="eyebrow">16 // @REPEATABLE</div><h2 id="repeatable-title">Jedną adnotację można zastosować wiele razy</h2><div class="two-col"><div class="code-panel"><pre><code><span class="kw">@Repeatable</span>(Roles.class)
+<span class="kw">@Retention</span>(RetentionPolicy.RUNTIME)
+<span class="kw">public @interface</span> Role { String value(); }
+
+<span class="kw">@Retention</span>(RetentionPolicy.RUNTIME)
+<span class="kw">public @interface</span> Roles { Role[] value(); }
+
+<span class="kw">@Role</span>(<span class="str">"USER"</span>) <span class="kw">@Role</span>(<span class="str">"AUDITOR"</span>)
+<span class="kw">class</span> Report { }</code></pre></div><div class="analysis-panel"><span class="analysis-label">ODCZYT</span><p><code>getAnnotationsByType(Role.class)</code> zwraca wszystkie wystąpienia, niezależnie od reprezentacji kontenera.</p></div></div></section>
+
+    <section class="slide" id="inherited" data-title="Dziedziczenie" aria-labelledby="inherited-title"><div class="eyebrow">17 // @INHERITED</div><h2 id="inherited-title">Dziedziczenie adnotacji ma wąski zakres</h2><div class="two-col"><div><p><code>@Inherited</code> wpływa na wyszukiwanie adnotacji na klasach. Podklasa może wtedy otrzymać adnotację nadklasy przez <code>getAnnotation</code>.</p><div class="callout danger"><strong>Nie dotyczy:</strong> metod, pól, konstruktorów, parametrów ani implementowania interfejsu.</div></div><div class="code-panel"><pre><code><span class="kw">@Inherited</span>
+<span class="kw">@Retention</span>(RetentionPolicy.RUNTIME)
+<span class="kw">@Target</span>(ElementType.TYPE)
+<span class="kw">public @interface</span> Secured { }
+
+<span class="kw">@Secured class</span> BaseService { }
+<span class="kw">class</span> UserService <span class="kw">extends</span> BaseService { }</code></pre></div></div></section>
+
+    <section class="slide" id="processing" data-title="Przetwarzanie" aria-labelledby="processing-title"><div class="eyebrow">18 // DWA MOMENTY</div><h2 id="processing-title">Adnotacje można przetwarzać przed i po uruchomieniu</h2><div class="two-col"><div><h3>Podczas kompilacji</h3><p>Procesor adnotacji analizuje model źródła i może generować pliki. Działa bez uruchamiania aplikacji.</p><div class="syntax"><span><b>javac</b> + annotation processor</span><small>przykład: generowanie kodu pomocniczego</small></div></div><div><h3>W czasie działania</h3><p>Refleksja odczytuje adnotacje z retencją <code>RUNTIME</code> i reaguje na nie podczas pracy programu.</p><div class="syntax"><span><b>JVM</b> + reflection</span><small>przykład: routing, testy, konfiguracja</small></div></div></div></section>
+
+    <section class="slide example-slide" id="live-coding" data-title="Live coding" aria-labelledby="live-title"><div class="eyebrow">LIVE CODING // 8 MIN</div><h2 id="live-title">Runner oznaczonych zadań</h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">ZADANIE DLA GRUPY</span><h3>Uzupełnij skaner</h3><p>Znajdź metody z <code>@Scheduled</code>, odczytaj konfigurację i wywołaj tylko aktywne zadania.</p><ol><li>Pobierz zadeklarowane metody.</li><li>Odczytaj adnotację.</li><li>Sprawdź <code>enabled</code>.</li><li>Wywołaj metodę.</li></ol><p class="path">examples/annotation-examples/src/main/java/…/AnnotationRunner.java</p></div><div><div class="code-panel"><pre><code><span class="kw">for</span> (Method method : ________________) {
+    Scheduled job = ____________________;
+    <span class="kw">if</span> (job != <span class="kw">null</span> &amp;&amp; ____________) {
+        ____________________;
+    }
+}</code></pre></div><button class="reveal-btn" type="button" aria-expanded="false" data-target="live-solution">Pokaż rozwiązanie</button><div class="reveal" id="live-solution" hidden><code>getDeclaredMethods(), getAnnotation(Scheduled.class), job.enabled(), method.invoke(target)</code></div></div></div></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // KONTRAKT ADNOTACJI</div><h2 id="quiz-title">Która odpowiedź pasuje?</h2><div class="quiz-grid"><article><h3>1. Odczyt przez refleksję</h3><p>Jaka retencja jest konieczna?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>RetentionPolicy.RUNTIME</code></div></article><article><h3>2. Skrót bez nazwy</h3><p>Jak musi nazywać się element?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>value</code></div></article><article><h3>3. Wiele wystąpień</h3><p>Jak odczytać powtarzalną adnotację?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden><code>getAnnotationsByType(...)</code></div></article></div><div class="final-line"><strong>ADNOTACJE</strong> = deklaracja metadanych + jasno określony kontrakt + kod przetwarzający</div></section>
+
+    <section class="slide example-slide" id="challenge" data-title="Przykład finałowy" aria-labelledby="challenge-title"><div class="eyebrow">PRZYKŁAD FINAŁOWY // PROJEKT API</div><h2 id="challenge-title">Zaprojektuj adnotację <code>@Command</code></h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">WYMAGANIA</span><h3>Rejestr poleceń</h3><p>Adnotacja oznacza metody bez parametrów. Przechowuje nazwę polecenia i opcjonalny opis. Rejestr wyszukuje metody w runtime.</p><ol><li>Dobierz <code>@Target</code>.</li><li>Dobierz <code>@Retention</code>.</li><li>Zdefiniuj element wymagany i domyślny.</li><li>Zaplanuj walidację metod.</li></ol></div><div><div class="code-panel"><pre><code>__________(__________________)
+__________(__________________)
+<span class="kw">public @interface</span> Command {
+    String ________();
+    String description() ________ <span class="str">""</span>;
+}</code></pre></div><button class="reveal-btn" type="button" aria-expanded="false" data-target="final-solution">Pokaż rozwiązanie</button><div class="reveal" id="final-solution" hidden><code>@Target(ElementType.METHOD), @Retention(RetentionPolicy.RUNTIME), String value(), default</code></div></div></div></section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

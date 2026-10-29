@@ -21,10 +21,10 @@ public final class ClassInspector {
         System.out.println("Nadklasa: " + nameOf(type.getSuperclass()));
         System.out.println("Interfejsy: " + Arrays.toString(type.getInterfaces()));
 
-        // printRecordComponents(type);
-        // printFields(type);
-        // printConstructors(type);
-        // printMethods(type);
+         printRecordComponents(type);
+         printFields(type);
+         printConstructors(type);
+         printMethods(type);
     }
 
     private static String kindOf(Class<?> type) {
@@ -70,7 +70,9 @@ public final class ClassInspector {
 
     private static void printMethods(Class<?> type) {
         System.out.println("Zadeklarowane metody:");
+
         for (Method method : type.getDeclaredMethods()) {
+            System.out.println("  Modyfikatory: " + Modifier.toString(method.getModifiers()));
             System.out.printf("  %s %s(%s)%n",
                     format(method.getGenericReturnType()),
                     method.getName(),

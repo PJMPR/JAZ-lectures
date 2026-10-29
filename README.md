@@ -8,6 +8,7 @@ Dostępne wykłady:
 - „Wyrażenia lambda” — `lectures/lambdas/index.html`.
 - „Stream API” — `lectures/streams/index.html`;
 - „Refleksja i badanie definicji klas” — `lectures/reflection/index.html`.
+- „Adnotacje w Javie” — `lectures/annotations/index.html`.
 
 ## Uruchomienie strony
 
