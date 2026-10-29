@@ -1,4 +1,6 @@
-package pl.pjatk.jaz.annotations;
+package pl.pjatk.jaz.annotations.scheduling.model;
+
+import pl.pjatk.jaz.annotations.scheduling.annotation.Scheduled;
 
 /**
  * Przykładowy obiekt zawierający metody analizowane przez refleksję.

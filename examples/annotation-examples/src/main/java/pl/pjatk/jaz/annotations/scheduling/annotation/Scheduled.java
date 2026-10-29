@@ -1,4 +1,6 @@
-package pl.pjatk.jaz.annotations;
+package pl.pjatk.jaz.annotations.scheduling.annotation;
+
+import pl.pjatk.jaz.annotations.scheduling.runtime.AnnotationRunner;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

@@ -1,7 +1,10 @@
-package pl.pjatk.jaz.annotations;
+package pl.pjatk.jaz.annotations.scheduling.runtime;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import pl.pjatk.jaz.annotations.scheduling.annotation.Scheduled;
+import pl.pjatk.jaz.annotations.scheduling.model.CleanupJob;
 
 /**
  * Minimalny mechanizm przetwarzający adnotację {@link Scheduled}.
