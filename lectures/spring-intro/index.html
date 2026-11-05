@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wprowadzenie do ekosystemu Spring, kontenera IoC i wstrzykiwania zależności.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // Wprowadzenie do Spring</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ Spring Intro">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // SPRING INTRO</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>CONTEXT <b>STARTING</b></span><span>DI <b>READY</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">25</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 06 // 60 MIN // JAVA 21</div>
+      <div class="hero-grid"><div><p class="kicker">FRAMEWORK + KONTENER + ZALEŻNOŚCI</p><h1 id="intro-title">Wprowadzenie<br><em>do Spring</em></h1><p class="lead">Ogólne spojrzenie na platformę, jej miejsce w aplikacji i mechanizm, od którego zaczyna się każdy projekt Spring Boot: kontener IoC.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>odróżnisz Spring Framework od Spring Boot,</li><li>wyjaśnisz IoC, bean i dependency injection,</li><li>uruchomisz kontener i zbudujesz graf obiektów przez konstruktory.</li></ul></div></div><div class="hero-visual" id="hero-visual"><img src="../../assets/spring-intro/ioc-hero.png" alt="Abstrakcyjny kontener łączący moduły aplikacji w graf obiektów"><button class="zoom-btn" type="button" data-zoom-target="#hero-visual">Powiększ</button></div></div>
+      <aside class="speaker-note">Pytanie otwierające: kto w dotychczasowych projektach tworzył serwisy, repozytoria i łączył je ze sobą?</aside>
+    </section>
+
+    <section class="slide" id="problem" data-title="Problem" aria-labelledby="problem-title"><div class="eyebrow">00 // PUNKT WYJŚCIA</div><h2 id="problem-title">Aplikacja szybko staje się grafem współpracujących obiektów</h2><div class="two-col"><div><p>Serwis zamówień potrzebuje repozytorium i mechanizmu powiadomień. Te komponenty mają kolejne zależności, konfigurację oraz własny cykl życia.</p><div class="callout warning"><strong>Pytanie architektoniczne:</strong> gdzie tworzyć obiekty i kto ma decydować o ich konkretnych implementacjach?</div></div><div class="diagram-panel" id="graph-diagram"><div class="diagram-head"><span>GRAF OBIEKTÓW</span><button class="zoom-btn" type="button" data-zoom-target="#graph-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>OrderController</strong><small>wejście</small></div><span class="connector">›</span><div class="node-box"><strong>OrderService</strong><small>logika</small></div><span class="connector">›</span><div class="node-box"><strong>Repository + Gateway</strong><small>infrastruktura</small></div></div></div></div></section>
+
+    <section class="slide example-slide" id="manual-wiring" data-title="Ręczne łączenie" aria-labelledby="manual-title"><div class="eyebrow">01 // BEZ FRAMEWORKA</div><h2 id="manual-title">Kod startowy może zbudować graf ręcznie</h2><div class="two-col"><div class="code-panel" id="manual-code"><div class="code-head"><span>ManualApp.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#manual-code">Powiększ</button></div></div><pre><code>OrderRepository repository =
+    <span class="kw">new</span> InMemoryOrderRepository();
+NotificationGateway notifications =
+    <span class="kw">new</span> ConsoleNotificationGateway();
+
+OrderService service =
+    <span class="kw">new</span> OrderService(repository, notifications);
+
+service.placeOrder(<span class="str">"SPRING-101"</span>);</code></pre></div><div class="analysis-panel"><span class="analysis-label">TO NADAL JEST DI</span><h3>Zależności przekazuje konstruktor</h3><p>Framework nie jest potrzebny do zastosowania dependency injection. Spring automatyzuje tworzenie i składanie większego grafu oraz zarządza jego cyklem życia.</p></div></div></section>
+
+    <section class="slide" id="spring-definition" data-title="Spring" aria-labelledby="spring-definition-title"><div class="eyebrow">02 // FRAMEWORK</div><h2 id="spring-definition-title">Spring wspiera infrastrukturę aplikacji Java</h2><div class="spring-map"><article><strong>Core Container</strong><p>IoC, DI, konfiguracja, zdarzenia i zasoby.</p></article><article><strong>Web</strong><p>Spring MVC, WebFlux i klienci HTTP.</p></article><article><strong>Data Access</strong><p>Transakcje, JDBC i integracja z ORM.</p></article><article><strong>Testing</strong><p>Kontekst testowy, mocki i testowanie warstwy web.</p></article></div><div class="callout"><strong>Modułowość:</strong> aplikacja wybiera potrzebne elementy. Nazwa „Spring” opisuje rodzinę projektów, nie pojedynczą bibliotekę.</div></section>
+
+    <section class="slide" id="ecosystem" data-title="Ekosystem" aria-labelledby="ecosystem-title"><div class="eyebrow">03 // RODZINA PROJEKTÓW</div><h2 id="ecosystem-title">Najczęściej spotykane projekty Spring</h2><div class="cards three"><article><span class="card-code">Framework</span><h3>Fundament</h3><p>Kontener, web, transakcje, AOP i integracje.</p></article><article><span class="card-code">Boot</span><h3>Szybki start</h3><p>Startery, auto-konfiguracja, serwer osadzony i funkcje produkcyjne.</p></article><article><span class="card-code">Data / Security</span><h3>Specjalizacje</h3><p>Dostęp do danych oraz uwierzytelnianie i autoryzacja.</p></article></div><p class="final-line">Kolejne wykłady skupią się na <strong>SPRING BOOT</strong>, ale jego aplikacja nadal działa na kontenerze Spring Framework.</p></section>
+
+    <section class="slide" id="framework-boot" data-title="Framework i Boot" aria-labelledby="framework-boot-title"><div class="eyebrow">04 // ROZDZIELENIE POJĘĆ</div><h2 id="framework-boot-title">Spring Framework dostarcza mechanizmy, Spring Boot wybiera rozsądne ustawienia startowe</h2><div class="two-col"><div><h3>Spring Framework</h3><ul class="mission-list"><li>definiuje kontener IoC i API aplikacji,</li><li>udostępnia moduły web, data i testing,</li><li>pozwala jawnie skonfigurować każdy element.</li></ul></div><div><h3>Spring Boot</h3><ul class="mission-list"><li>dobiera zależności przez startery,</li><li>konfiguruje aplikację na podstawie classpath,</li><li>upraszcza uruchomienie i obserwację aplikacji.</li></ul></div></div></section>
+
+    <section class="slide" id="versions" data-title="Stan platformy" aria-labelledby="versions-title"><div class="eyebrow">05 // STAN NA LISTOPAD 2026</div><h2 id="versions-title">Seria wykładów startuje na Java 21 i generacji Spring 7</h2><div class="cards three"><article><span class="card-code">Java 21</span><h3>Środowisko kursu</h3><p>Wspierane przez bieżącą generację Springa i obecne projekty w repozytorium.</p></article><article><span class="card-code">Spring 7.0.x</span><h3>Framework</h3><p>Projekt demonstracyjny używa stabilnej linii 7.0.</p></article><article><span class="card-code">Boot 4.1.x</span><h3>Kolejne wykłady</h3><p>Boot wymaga co najmniej Java 17 i bazuje na Spring Framework 7.</p></article></div><p class="hint">Źródła: spring.io/projects oraz oficjalna dokumentacja wymagań Spring Boot, dostęp 5.11.2026.</p></section>
+
+    <section class="slide" id="ioc" data-title="IoC" aria-labelledby="ioc-title"><div class="eyebrow">06 // INVERSION OF CONTROL</div><h2 id="ioc-title">Kontrola nad tworzeniem i łączeniem obiektów trafia do kontenera</h2><div class="two-col"><div><p>Klasa opisuje, czego potrzebuje. Konfiguracja wskazuje dostępne obiekty. Kontener tworzy instancje, rozwiązuje zależności i składa graf.</p><div class="callout"><strong>Odwrócenie:</strong> obiekt nie wyszukuje ani nie tworzy swoich współpracowników.</div></div><div class="diagram-panel" id="ioc-diagram"><div class="diagram-head"><span>OD KONFIGURACJI DO GRAFU</span><button class="zoom-btn" type="button" data-zoom-target="#ioc-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Konfiguracja</strong><small>definicje</small></div><span class="connector">›</span><div class="node-box"><strong>Kontener</strong><small>tworzy i łączy</small></div><span class="connector">›</span><div class="node-box"><strong>Beany</strong><small>gotowy graf</small></div></div></div></div></section>
+
+    <section class="slide" id="di" data-title="DI" aria-labelledby="di-title"><div class="eyebrow">07 // DEPENDENCY INJECTION</div><h2 id="di-title">DI jest konkretną realizacją zasady IoC</h2><div class="cards three"><article><span class="card-code">constructor</span><h3>Konstruktor</h3><p>Pełny kontrakt obiektu, niezmienność i proste testowanie. Preferowany wariant.</p></article><article><span class="card-code">setter</span><h3>Setter</h3><p>Przydatny dla zależności opcjonalnych lub rekonfigurowalnych.</p></article><article><span class="card-code">field</span><h3>Pole</h3><p>Krótki zapis, ale ukrywa kontrakt i utrudnia testowanie bez kontenera.</p></article></div></section>
+
+    <section class="slide example-slide" id="constructor" data-title="Konstruktor" aria-labelledby="constructor-title"><div class="eyebrow">08 // KONTRAKT KLASY</div><h2 id="constructor-title">Konstruktor ujawnia wymagane zależności</h2><div class="two-col"><div class="code-panel" id="constructor-code"><div class="code-head"><span>OrderService.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#constructor-code">Powiększ</button></div></div><pre><code><span class="kw">public final class</span> OrderService {
+    <span class="kw">private final</span> OrderRepository repository;
+    <span class="kw">private final</span> NotificationGateway notifications;
+
+    <span class="kw">public</span> OrderService(
+            OrderRepository repository,
+            NotificationGateway notifications) {
+        <span class="kw">this</span>.repository = repository;
+        <span class="kw">this</span>.notifications = notifications;
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">BEZ ADNOTACJI</span><h3>Jeden konstruktor wystarcza</h3><p>Spring potrafi wybrać jedyny konstruktor bez <code>@Autowired</code>. Klasa pozostaje zwykłą klasą Java i można ją utworzyć w teście.</p></div></div></section>
+
+    <section class="slide" id="bean" data-title="Bean" aria-labelledby="bean-title"><div class="eyebrow">09 // SŁOWNIK SPRINGA</div><h2 id="bean-title">Bean to obiekt zarządzany przez kontener Spring</h2><div class="two-col"><div><ul class="mission-list"><li>ma definicję znaną kontenerowi,</li><li>może otrzymywać inne beany jako zależności,</li><li>ma nazwę, typ, scope i cykl życia,</li><li>może być przetwarzany przez infrastrukturę Springa.</li></ul></div><div class="analysis-panel"><span class="analysis-label">WAŻNE ROZRÓŻNIENIE</span><h3>Każdy bean jest obiektem</h3><p>Nie każdy obiekt utworzony operatorem <code>new</code> jest beanem. Kontener zarządza wyłącznie instancjami, które poznał przez konfigurację.</p></div></div></section>
+
+    <section class="slide" id="container" data-title="Kontener" aria-labelledby="container-title"><div class="eyebrow">10 // APPLICATION CONTEXT</div><h2 id="container-title"><code>ApplicationContext</code> reprezentuje kontener aplikacji</h2><div class="cards three"><article><span class="card-code">definitions</span><h3>Metadane</h3><p>Źródłem mogą być klasy konfiguracji, metody fabrykujące lub skanowanie komponentów.</p></article><article><span class="card-code">registry</span><h3>Rejestr</h3><p>Kontener zna nazwy, typy i reguły tworzenia beanów.</p></article><article><span class="card-code">lifecycle</span><h3>Cykl życia</h3><p>Tworzy obiekty, wstrzykuje zależności i uruchamia rozszerzenia infrastruktury.</p></article></div></section>
+
+    <section class="slide example-slide" id="configuration" data-title="Konfiguracja" aria-labelledby="configuration-title"><div class="eyebrow">11 // JAWNE DEFINICJE</div><h2 id="configuration-title"><code>@Configuration</code> i <code>@Bean</code> opisują graf</h2><div class="two-col"><div class="code-panel" id="configuration-code"><div class="code-head"><span>ExplicitConfiguration.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#configuration-code">Powiększ</button></div></div><pre><code><span class="kw">@Configuration</span>
+<span class="kw">class</span> ExplicitConfiguration {
+    <span class="kw">@Bean</span>
+    OrderRepository repository() {
+        <span class="kw">return new</span> InMemoryOrderRepository();
+    }
+
+    <span class="kw">@Bean</span>
+    OrderService orderService(
+            OrderRepository repository,
+            NotificationGateway notifications) {
+        <span class="kw">return new</span> OrderService(repository, notifications);
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">PARAMETRY METODY</span><p>Kontener odnajduje beany pasujące typem do parametrów i przekazuje je przy wywołaniu metody <code>@Bean</code>.</p></div></div></section>
+
+    <section class="slide example-slide" id="start-context" data-title="Uruchomienie" aria-labelledby="start-title"><div class="eyebrow">12 // BOOTSTRAP BEZ BOOTA</div><h2 id="start-title">Kontener można uruchomić bez Spring Boot</h2><div class="two-col"><div class="code-panel" id="context-code"><div class="code-head"><span>App.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#context-code">Powiększ</button></div></div><pre><code><span class="kw">try</span> (<span class="kw">var</span> context =
+        <span class="kw">new</span> AnnotationConfigApplicationContext(
+            ExplicitConfiguration.class)) {
+
+    OrderService service =
+        context.getBean(OrderService.class);
+
+    service.placeOrder(<span class="str">"SPRING-101"</span>);
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">CEL DEMONSTRACJI</span><h3>Widzimy granicę kontenera</h3><p><code>getBean</code> pobiera punkt wejścia. Wewnątrz logiki biznesowej zależności trafiają przez konstruktor, bez odwołań do API Springa.</p></div></div></section>
+
+    <section class="slide" id="component-scan" data-title="Skanowanie" aria-labelledby="scan-title"><div class="eyebrow">13 // COMPONENT SCAN</div><h2 id="scan-title">Spring może wykrywać klasy oznaczone stereotypami</h2><div class="two-col"><div class="code-panel" id="scan-code"><div class="code-head"><span>Warstwa aplikacji</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#scan-code">Powiększ</button></div></div><pre><code><span class="kw">@Component</span>
+<span class="kw">class</span> PricingService { ... }
+
+<span class="kw">@Repository</span>
+<span class="kw">class</span> JdbcOrderRepository { ... }
+
+<span class="kw">@Configuration</span>
+<span class="kw">@ComponentScan</span>(<span class="str">"pl.pjatk.jaz"</span>)
+<span class="kw">class</span> ScanConfiguration { }</code></pre></div><div><p><code>@Component</code> jest ogólnym stereotypem. <code>@Service</code>, <code>@Repository</code> i <code>@Controller</code> opisują rolę komponentu.</p><div class="callout warning"><strong>Granica skanowania:</strong> pakiet startowy wpływa na to, które klasy kontener zobaczy.</div></div></div></section>
+
+    <section class="slide" id="resolution" data-title="Rozwiązywanie" aria-labelledby="resolution-title"><div class="eyebrow">14 // AUTOWIRING</div><h2 id="resolution-title">Kontener najpierw dopasowuje zależność według typu</h2><div class="diagram-panel" id="resolution-diagram"><div class="diagram-head"><span>ROZWIĄZANIE ZALEŻNOŚCI</span><button class="zoom-btn" type="button" data-zoom-target="#resolution-diagram">Powiększ</button></div><div class="flow-diagram cycle"><div class="node-box"><strong>Parametr</strong><small>OrderRepository</small></div><span class="connector">›</span><div class="node-box"><strong>Kandydaci</strong><small>beany zgodnego typu</small></div><span class="connector">›</span><div class="node-box"><strong>Wybór</strong><small>jeden, @Primary lub @Qualifier</small></div><span class="connector">›</span><div class="node-box"><strong>Wstrzyknięcie</strong><small>konstruktor</small></div></div></div><div class="callout danger"><strong>Niejednoznaczność:</strong> dwa beany tego samego typu wymagają doprecyzowania konfiguracji.</div></section>
+
+    <section class="slide" id="scope" data-title="Scope" aria-labelledby="scope-title"><div class="eyebrow">15 // ZASIĘG BEANA</div><h2 id="scope-title">Scope określa, jak długo istnieje instancja</h2><div class="cards three"><article><span class="card-code">singleton</span><h3>Domyślny</h3><p>Jedna instancja na definicję beana w danym kontenerze.</p></article><article><span class="card-code">prototype</span><h3>Nowa instancja</h3><p>Kontener tworzy obiekt przy każdym żądaniu beana.</p></article><article><span class="card-code">web scopes</span><h3>Aplikacja web</h3><p>Na przykład request i session, dostępne w kontekście webowym.</p></article></div><div class="callout warning"><strong>Singleton Springa:</strong> zakres kontenera, a nie globalna pojedyncza instancja w całej JVM.</div></section>
+
+    <section class="slide" id="lifecycle" data-title="Cykl życia" aria-labelledby="lifecycle-title"><div class="eyebrow">16 // OD DEFINICJI DO GOTOWEGO BEANA</div><h2 id="lifecycle-title">Kontener zarządza kolejnymi etapami życia beana</h2><div class="diagram-panel" id="lifecycle-diagram"><div class="diagram-head"><span>UPROSZCZONY CYKL ŻYCIA</span><button class="zoom-btn" type="button" data-zoom-target="#lifecycle-diagram">Powiększ</button></div><div class="flow-diagram cycle"><div class="node-box"><strong>Definicja</strong><small>metadane</small></div><span class="connector">›</span><div class="node-box"><strong>Instancja</strong><small>konstruktor</small></div><span class="connector">›</span><div class="node-box"><strong>Inicjalizacja</strong><small>post-processory</small></div><span class="connector">›</span><div class="node-box"><strong>Zamknięcie</strong><small>cleanup</small></div></div></div></section>
+
+    <section class="slide" id="benefits" data-title="Korzyści" aria-labelledby="benefits-title"><div class="eyebrow">17 // DLACZEGO DI</div><h2 id="benefits-title">Jawne zależności upraszczają zmianę implementacji i testy</h2><div class="two-col"><div><h3>Kod aplikacji</h3><ul class="mission-list"><li>zależy od interfejsów i kontraktów,</li><li>nie zna sposobu tworzenia infrastruktury,</li><li>może otrzymać inną implementację przez konfigurację.</li></ul></div><div><h3>Test jednostkowy</h3><ul class="mission-list"><li>tworzy obiekt bez kontenera,</li><li>podstawia lekkie fake lub mock,</li><li>weryfikuje zachowanie jednej klasy.</li></ul></div></div></section>
+
+    <section class="slide example-slide" id="test" data-title="Test" aria-labelledby="test-title"><div class="eyebrow">18 // TEST BEZ KONTEKSTU</div><h2 id="test-title">Konstruktor pozwala testować zwykłą klasę Java</h2><div class="two-col"><div class="code-panel" id="test-code"><div class="code-head"><span>OrderServiceTest.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#test-code">Powiększ</button></div></div><pre><code>OrderRepository repository = saved::append;
+NotificationGateway gateway = notified::append;
+
+<span class="kw">var</span> service =
+    <span class="kw">new</span> OrderService(repository, gateway);
+
+service.placeOrder(<span class="str">"T-42"</span>);
+
+assertEquals(<span class="str">"T-42"</span>, saved.toString());</code></pre></div><div class="analysis-panel"><span class="analysis-label">SZYBKA PĘTLA</span><h3>Spring nie bierze udziału w teście</h3><p>Kontener będzie potrzebny w testach integracyjnych. Zachowanie samego serwisu sprawdzamy szybciej, tworząc go bezpośrednio.</p></div></div></section>
+
+    <section class="slide" id="pitfalls" data-title="Pułapki" aria-labelledby="pitfalls-title"><div class="eyebrow">19 // PIERWSZE BŁĘDY</div><h2 id="pitfalls-title">Kontener nie naprawia nieczytelnego projektu</h2><div class="cards three"><article><span class="card-code">field injection</span><h3>Ukryty kontrakt</h3><p>Obiekt wygląda na możliwy do utworzenia, choć bez refleksji pozostaje niekompletny.</p></article><article><span class="card-code">service locator</span><h3><code>getBean</code> wszędzie</h3><p>Kod biznesowy zaczyna sam pobierać zależności i wiąże się z kontenerem.</p></article><article><span class="card-code">cycles</span><h3>Cykl zależności</h3><p>A potrzebuje B, a B potrzebuje A. Zwykle sygnalizuje problem z podziałem odpowiedzialności.</p></article></div></section>
+
+    <section class="slide example-slide" id="live-coding" data-title="Live coding" aria-labelledby="live-title"><div class="eyebrow">LIVE CODING // 12 MIN</div><h2 id="live-title">Od ręcznego grafu do kontenera IoC</h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">SCENARIUSZ</span><h3>Zamówienie i powiadomienie</h3><ol><li>Uruchom ręcznie połączone obiekty.</li><li>Dodaj klasę <code>@Configuration</code>.</li><li>Zarejestruj trzy metody <code>@Bean</code>.</li><li>Uruchom <code>AnnotationConfigApplicationContext</code>.</li><li>Oznacz klasę <code>@Component</code> i włącz component scan.</li></ol><p class="path">examples/spring-intro</p></div><div class="diagram-panel" id="live-diagram"><div class="diagram-head"><span>PLAN DEMONSTRACJI</span><button class="zoom-btn" type="button" data-zoom-target="#live-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>new</strong><small>ręczny graf</small></div><span class="connector">›</span><div class="node-box"><strong>@Bean</strong><small>jawna konfiguracja</small></div><span class="connector">›</span><div class="node-box"><strong>@Component</strong><small>skanowanie</small></div></div></div></div></section>
+
+    <section class="slide" id="boot-preview" data-title="Spring Boot" aria-labelledby="boot-title"><div class="eyebrow">20 // ZAPOWIEDŹ SERII</div><h2 id="boot-title">Spring Boot uruchomi ten sam kontener z mniejszą liczbą decyzji startowych</h2><div class="two-col"><div class="code-panel" id="boot-code"><div class="code-head"><span>Zapowiedź</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#boot-code">Powiększ</button></div></div><pre><code><span class="kw">@SpringBootApplication</span>
+<span class="kw">public class</span> OrdersApplication {
+    <span class="kw">public static void</span> main(String[] args) {
+        SpringApplication.run(
+            OrdersApplication.class, args);
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">POD SPODEM</span><h3>Kontener nadal wykonuje podstawową pracę</h3><p>Boot dołoży auto-konfigurację, startery, konfigurację zewnętrzną, serwer i narzędzia produkcyjne. IoC i DI pozostają fundamentem.</p></div></div></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // FUNDAMENTY</div><h2 id="quiz-title">Co zrobi kontener?</h2><div class="quiz-grid"><article><h3>1. Jeden konstruktor</h3><p>Czy potrzebuje <code>@Autowired</code>?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden>Nie. Spring wybierze jedyny konstruktor.</div></article><article><h3>2. Dwa repozytoria</h3><p>Oba implementują ten sam interfejs.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden>Trzeba wskazać wybór, np. przez <code>@Primary</code> lub <code>@Qualifier</code>.</div></article><article><h3>3. Obiekt przez <code>new</code></h3><p>Czy automatycznie jest beanem?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden>Nie. Kontener musi poznać jego definicję.</div></article></div></section>
+
+    <section class="slide" id="summary" data-title="Podsumowanie" aria-labelledby="summary-title"><div class="eyebrow">21 // MODEL MENTALNY</div><h2 id="summary-title">Konfiguracja opisuje obiekty, kontener buduje graf, DI dostarcza zależności</h2><div class="diagram-panel" id="summary-diagram"><div class="diagram-head"><span>FUNDAMENT SERII SPRING BOOT</span><button class="zoom-btn" type="button" data-zoom-target="#summary-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Definicje</strong><small>@Bean / @Component</small></div><span class="connector">›</span><div class="node-box"><strong>ApplicationContext</strong><small>IoC container</small></div><span class="connector">›</span><div class="node-box"><strong>Aplikacja</strong><small>połączone beany</small></div></div></div><p class="final-line">NASTĘPNIE: <strong>SPRING BOOT, STARTERY I AUTO-KONFIGURACJA</strong></p></section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog class="zoom-dialog" id="zoom-dialog" aria-labelledby="zoom-title"><div class="zoom-dialog-head"><span id="zoom-title">PODGLĄD POWIĘKSZONY</span><form method="dialog"><button class="zoom-close" type="submit">Zamknij</button></form></div><div class="zoom-content" id="zoom-content"></div></dialog>
+</body>
+</html>

@@ -12,6 +12,7 @@ import pl.pjatk.jaz.annotations.objectbuilder.core.ObjectBuilder;
  */
 @Buildable // TYPE: cała klasa może zostać przekazana do ObjectBuilder.build().
 public class ServerConfiguration {
+
     private final String applicationName;
     private final int port;
 

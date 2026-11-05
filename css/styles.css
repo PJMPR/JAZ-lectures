@@ -97,8 +97,9 @@ p { line-height: 1.6; color: #b9c9cd; }
 .code-panel { position: relative; border: 1px solid var(--line); background: rgba(5,14,19,.94); box-shadow: var(--shadow); min-width: 0; }
 .code-panel::before { content: ""; position: absolute; inset: -1px auto auto -1px; width: 48px; height: 3px; background: var(--cyan); }
 .code-head { display: flex; justify-content: space-between; align-items: center; padding: .65rem .85rem; border-bottom: 1px solid var(--line); color: var(--muted); font: .7rem "JetBrains Mono"; }
-.copy-btn, .reveal-btn { border: 1px solid var(--line); background: #0b2028; padding: .45rem .75rem; color: var(--cyan); cursor: pointer; text-transform: uppercase; font-size: .68rem; letter-spacing: .08em; }
-.copy-btn:hover, .copy-btn:focus-visible, .reveal-btn:hover, .reveal-btn:focus-visible { border-color: var(--cyan); background: rgba(87,240,242,.12); outline: none; }
+.code-actions { display: flex; gap: .45rem; }
+.copy-btn, .zoom-btn, .reveal-btn, .zoom-close { border: 1px solid var(--line); background: #0b2028; padding: .45rem .75rem; color: var(--cyan); cursor: pointer; text-transform: uppercase; font-size: .68rem; letter-spacing: .08em; }
+.copy-btn:hover, .copy-btn:focus-visible, .zoom-btn:hover, .zoom-btn:focus-visible, .reveal-btn:hover, .reveal-btn:focus-visible, .zoom-close:hover, .zoom-close:focus-visible { border-color: var(--cyan); background: rgba(87,240,242,.12); outline: none; }
 pre { margin: 0; padding: clamp(1rem, 2vw, 1.5rem); overflow: auto; font-size: clamp(.72rem, 1.06vw, .96rem); line-height: 1.65; tab-size: 4; }
 pre code { color: #d8e7e9; }
 .kw { color: #ff8860; } .str { color: #b9e87e; } .num { color: #dfb8ff; } .cm { color: #607b82; }
@@ -154,6 +155,27 @@ pre code { color: #d8e7e9; }
 .analysis-label { color: var(--orange); font: 600 .67rem "JetBrains Mono"; letter-spacing: .15em; }
 .analysis-answer { margin-top: 1.2rem; padding: .8rem 1rem; border-left: 2px solid var(--cyan); background: rgba(87,240,242,.07); color: #d5e7e9; overflow-wrap: anywhere; }
 .mission-brief p { color: #c3d1d4; }
+.hero-visual { position: relative; min-width: 0; border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+.hero-visual img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.hero-visual .zoom-btn { position: absolute; right: .8rem; bottom: .8rem; background: rgba(5,14,19,.92); }
+
+.diagram-panel { position: relative; padding: clamp(1rem, 2vw, 1.7rem); border: 1px solid var(--line); background: rgba(5,14,19,.92); box-shadow: var(--shadow); }
+.diagram-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.2rem; color: var(--muted); font: .7rem "JetBrains Mono"; }
+.flow-diagram { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; gap: .65rem; text-align: center; }
+.flow-diagram .node-box { min-height: 110px; display: grid; place-content: center; gap: .35rem; padding: 1rem; border: 1px solid var(--line); background: linear-gradient(145deg, rgba(14,35,44,.9), rgba(6,15,20,.94)); }
+.flow-diagram .node-box strong { color: var(--cyan); }.flow-diagram .node-box small { color: var(--muted); }
+.flow-diagram .connector { color: var(--orange); font: 1.5rem "JetBrains Mono"; }
+.flow-diagram.cycle { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.spring-map { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; }
+.spring-map article { min-height: 150px; padding: 1rem; border: 1px solid var(--line); background: var(--panel); }
+.spring-map strong { display: block; color: var(--cyan); margin-bottom: .55rem; }.spring-map p { margin: 0; font-size: .87rem; }
+.zoom-dialog { width: min(1180px, 94vw); max-height: 90vh; padding: 0; border: 1px solid var(--cyan); background: #050e13; color: var(--text); box-shadow: 0 0 70px rgba(0,0,0,.75), 0 0 28px rgba(87,240,242,.18); }
+.zoom-dialog::backdrop { background: rgba(0,5,8,.86); backdrop-filter: blur(5px); }
+.zoom-dialog-head { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: .8rem 1rem; border-bottom: 1px solid var(--line); background: #07141b; color: var(--muted); font: .72rem "JetBrains Mono"; }
+.zoom-content { padding: clamp(1rem, 3vw, 2.5rem); overflow: auto; }
+.zoom-content .code-panel, .zoom-content .diagram-panel, .zoom-content .hero-visual { width: 100%; box-shadow: none; }
+.zoom-content .hero-visual img { aspect-ratio: auto; max-height: 72vh; object-fit: contain; }
+.zoom-content pre { font-size: clamp(.95rem, 1.7vw, 1.35rem); }
 
 .controls { position: fixed; z-index: 30; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1rem; }
 .controls > button { border: 1px solid var(--line); background: rgba(6,18,23,.95); padding: .55rem .85rem; cursor: pointer; color: var(--cyan); }
@@ -167,8 +189,11 @@ pre code { color: #d8e7e9; }
   .slide { padding: 2rem 1.4rem 4.5rem; align-content: start; }
   .hero-grid, .two-col, .cards.three, .quiz-grid { grid-template-columns: 1fr; }
   .annotation-pipeline, .annotation-flow { grid-template-columns: 1fr; }
+  .flow-diagram, .flow-diagram.cycle, .spring-map { grid-template-columns: 1fr; }
+  .flow-diagram .connector { transform: rotate(90deg); }
   .annotation-pipeline i, .annotation-flow i { transform: rotate(90deg); justify-self: center; }
   .reactor { display: none; }
+  .hero-visual { display: none; }
   .hero-grid { margin-top: 5vh; }
   .cards article, .quiz-grid article { padding: 1rem; }
   .slide::before { display: none; }

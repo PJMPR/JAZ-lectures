@@ -55,6 +55,7 @@ public final class ObjectBuilder {
         injectFields(instance, type);
         invokePostBuildMethods(instance, type);
         return instance;
+  //      return null;
     }
 
     private void requireBuildable(Class<?> type) {

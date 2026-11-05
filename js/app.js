@@ -9,6 +9,8 @@
   const nextButton = document.querySelector('#next');
   const dotsContainer = document.querySelector('#slide-dots');
   const toast = document.querySelector('#toast');
+  const zoomDialog = document.querySelector('#zoom-dialog');
+  const zoomContent = document.querySelector('#zoom-content');
   let current = 0;
   let toastTimer;
 
@@ -59,6 +61,7 @@
   addEventListener('hashchange', () => showSlide(indexFromHash(), false));
 
   addEventListener('keydown', (event) => {
+    if (zoomDialog?.open) return;
     if (event.target.matches('button, a')) return;
     if (['ArrowRight', 'PageDown', ' '].includes(event.key)) {
       event.preventDefault();
@@ -88,6 +91,24 @@
         showToast('Nie udało się skopiować kodu');
       }
     });
+  });
+
+  document.querySelectorAll('.zoom-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const target = document.querySelector(button.dataset.zoomTarget);
+      if (!target || !zoomDialog || !zoomContent) return;
+      const clone = target.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+      clone.querySelectorAll('button').forEach((element) => element.remove());
+      zoomContent.replaceChildren(clone);
+      zoomDialog.showModal();
+      zoomDialog.querySelector('.zoom-close')?.focus();
+    });
+  });
+
+  zoomDialog?.addEventListener('click', (event) => {
+    if (event.target === zoomDialog) zoomDialog.close();
   });
 
   document.querySelectorAll('.reveal-btn').forEach((button) => {
