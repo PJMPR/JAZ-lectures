@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Rekordy, DTO, konfiguracja i synchroniczne wywołania HTTP w Spring.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // DTO, record i klient HTTP</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ DTO + HTTP">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // DTO + HTTP</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>JSON <b>MAPPED</b></span><span>HTTP <b>READY</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">26</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title"><div class="eyebrow">WYKŁAD 07 // 75 MIN // JAVA 21</div><div class="hero-grid"><div><p class="kicker">DANE + KONTRAKT + KOMUNIKACJA</p><h1 id="intro-title">DTO, record<br><em>i klient HTTP</em></h1><p class="lead">Od odpowiedzi JSON do typów Javy: model transportowy, konfiguracja, bezpieczne URI i synchroniczne wywołanie zewnętrznego API.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>wyjaśnisz różnicę między encją, DTO i recordem,</li><li>zmapujesz JSON na rekordy przez Jacksona,</li><li>zbudujesz i przetestujesz klienta HTTP w Spring.</li></ul></div></div><div class="diagram-panel" id="hero-flow"><div class="diagram-head"><span>PRZEPŁYW DANYCH</span><button class="zoom-btn" type="button" data-zoom-target="#hero-flow">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>HTTP</strong><small>JSON</small></div><span class="connector">›</span><div class="node-box"><strong>Jackson</strong><small>mapowanie</small></div><span class="connector">›</span><div class="node-box"><strong>record</strong><small>DTO</small></div></div></div></div><aside class="speaker-note">Pytanie otwierające: jaki typ zwracacie dziś z klienta zewnętrznego API — String, Map czy własną klasę?</aside></section>
+
+    <section class="slide" id="scenario" data-title="Scenariusz" aria-labelledby="scenario-title"><div class="eyebrow">00 // PRZYPADEK UŻYCIA</div><h2 id="scenario-title">Aplikacja pobiera użytkowników z Random User API</h2><div class="two-col"><div><p>Publiczne API zwraca dokument JSON z listą osób i metadanymi strony. Nasz kod ma skonfigurować zapytanie, wysłać GET i udostępnić wynik jako bezpieczne typy Javy.</p><div class="callout"><strong>Granica systemu:</strong> format odpowiedzi kontroluje dostawca API, nie nasz model domenowy.</div></div><div class="diagram-panel" id="scenario-flow"><div class="diagram-head"><span>OD KONFIGURACJI DO WYNIKU</span><button class="zoom-btn" type="button" data-zoom-target="#scenario-flow">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Properties</strong><small>URL + parametry</small></div><span class="connector">›</span><div class="node-box"><strong>Client</strong><small>GET</small></div><span class="connector">›</span><div class="node-box"><strong>DTO</strong><small>lista osób</small></div></div></div></div></section>
+
+    <section class="slide" id="record" data-title="Record" aria-labelledby="record-title"><div class="eyebrow">01 // NOŚNIK DANYCH</div><h2 id="record-title">Record deklaruje przejrzysty, płytko niemutowalny agregat danych</h2><div class="two-col"><div class="code-panel" id="record-code"><div class="code-head"><span>User.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#record-code">Powiększ</button></div></div><pre><code><span class="kw">public record</span> User(
+    String name,
+    String email
+) {}</code></pre></div><div class="analysis-panel"><span class="analysis-label">KOMPILATOR DODAJE</span><h3>Stan bez boilerplate'u</h3><p>Konstruktor kanoniczny, akcesory <code>name()</code> i <code>email()</code>, a także <code>equals</code>, <code>hashCode</code> i <code>toString</code>.</p></div></div></section>
+
+    <section class="slide" id="record-semantics" data-title="Semantyka recordu" aria-labelledby="record-semantics-title"><div class="eyebrow">02 // WAŻNE OGRANICZENIA</div><h2 id="record-semantics-title">Finalne pola nie gwarantują głębokiej niemutowalności</h2><div class="cards three"><article><span class="card-code">final</span><h3>Referencja</h3><p>Komponentu rekordu nie można przypisać ponownie po konstrukcji.</p></article><article><span class="card-code">mutable</span><h3>Obiekt wewnątrz</h3><p>Lista przekazana do rekordu nadal może być modyfikowalna.</p></article><article><span class="card-code">copyOf</span><h3>Kopia obronna</h3><p><code>List.copyOf</code> zabezpiecza kolekcję w konstruktorze kompaktowym.</p></article></div><div class="callout warning"><strong>Precyzja:</strong> record jest płytko niemutowalny, a nie automatycznie „w pełni immutable”.</div></section>
+
+    <section class="slide example-slide" id="compact-constructor" data-title="Konstruktor kompaktowy" aria-labelledby="compact-title"><div class="eyebrow">03 // INWARIANT</div><h2 id="compact-title">Konstruktor kompaktowy może walidować i normalizować dane</h2><div class="two-col"><div class="code-panel" id="compact-code"><div class="code-head"><span>RandomUserResponse.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#compact-code">Powiększ</button></div></div><pre><code><span class="kw">public record</span> RandomUserResponse(
+        List&lt;UserDto&gt; results,
+        PageInfoDto info) {
+
+    <span class="kw">public</span> RandomUserResponse {
+        results = List.copyOf(results);
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">KOPIA OBRONNA</span><h3>Lista staje się niemodyfikowalna</h3><p>Przypisanie do parametrów konstruktora następuje przed automatycznym zapisaniem komponentów rekordu.</p></div></div></section>
+
+    <section class="slide" id="dto" data-title="DTO" aria-labelledby="dto-title"><div class="eyebrow">04 // WZORZEC</div><h2 id="dto-title">DTO opisuje dane przekraczające granicę</h2><div class="two-col"><div><p>Data Transfer Object przenosi dane pomiędzy procesami, warstwami lub publicznymi kontraktami. Nie powinien przejmować reguł biznesowych encji.</p><ul class="mission-list"><li>odzwierciedla kontrakt wejścia lub wyjścia,</li><li>ogranicza ujawniane pola,</li><li>izoluje domenę od zmian zewnętrznego API.</li></ul></div><div class="callout"><strong>Record ≠ DTO:</strong> record jest konstrukcją języka, DTO jest rolą architektoniczną. Record często dobrze pełni tę rolę.</div></div></section>
+
+    <section class="slide" id="boundaries" data-title="Granice modeli" aria-labelledby="boundaries-title"><div class="eyebrow">05 // TRZY MODELE</div><h2 id="boundaries-title">Jeden użytkownik może mieć różne reprezentacje</h2><div class="cards three"><article><span class="card-code">API DTO</span><h3>Format dostawcy</h3><p><code>first</code>, <code>last</code>, <code>nat</code> — struktura odpowiedzi HTTP.</p></article><article><span class="card-code">domain</span><h3>Model biznesowy</h3><p>Tożsamość, reguły i operacje istotne dla aplikacji.</p></article><article><span class="card-code">view</span><h3>Odpowiedź aplikacji</h3><p>Tylko dane potrzebne odbiorcy naszego endpointu.</p></article></div><p class="final-line">MAPOWANIE NA GRANICY KOSZTUJE KILKA LINII, ALE CHRONI RESZTĘ SYSTEMU.</p></section>
+
+    <section class="slide example-slide" id="json-shape" data-title="JSON" aria-labelledby="json-title"><div class="eyebrow">06 // KONTRAKT ZEWNĘTRZNY</div><h2 id="json-title">Najpierw poznaj kształt dokumentu</h2><div class="code-panel" id="json-code"><div class="code-head"><span>response.json</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#json-code">Powiększ</button></div></div><pre><code>{
+  <span class="str">"results"</span>: [{
+    <span class="str">"name"</span>: { <span class="str">"first"</span>: <span class="str">"Jan"</span>, <span class="str">"last"</span>: <span class="str">"Kowalski"</span> },
+    <span class="str">"email"</span>: <span class="str">"jan@example.com"</span>,
+    <span class="str">"nat"</span>: <span class="str">"PL"</span>
+  }],
+  <span class="str">"info"</span>: { <span class="str">"seed"</span>: <span class="str">"jaz"</span>, <span class="str">"results"</span>: 1, <span class="str">"page"</span>: 1 }
+}</code></pre></div></section>
+
+    <section class="slide example-slide" id="nested-dto" data-title="Zagnieżdżone DTO" aria-labelledby="nested-title"><div class="eyebrow">07 // MAPOWANIE STRUKTURY</div><h2 id="nested-title">Zagnieżdżony JSON wymaga zagnieżdżonych typów</h2><div class="two-col"><div class="code-panel" id="nested-code"><div class="code-head"><span>UserDto.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#nested-code">Powiększ</button></div></div><pre><code><span class="kw">public record</span> NameDto(
+    String title, String first, String last) {}
+
+<span class="kw">public record</span> UserDto(
+    NameDto name, String email, String nat) {
+    <span class="kw">public</span> String fullName() {
+        <span class="kw">return</span> name.first() + <span class="str">" "</span> + name.last();
+    }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">JACKSON</span><h3>Nazwy zgodne — zero adnotacji</h3><p>Jeżeli komponent rekordu ma tę samą nazwę co pole JSON, Jackson dopasuje go konwencją.</p></div></div></section>
+
+    <section class="slide example-slide" id="json-property" data-title="JsonProperty" aria-labelledby="json-property-title"><div class="eyebrow">08 // RÓŻNE NAZWY</div><h2 id="json-property-title"><code>@JsonProperty</code> tłumaczy kontrakt JSON na język modelu</h2><div class="two-col"><div class="code-panel" id="property-code"><div class="code-head"><span>PageInfoDto.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#property-code">Powiększ</button></div></div><pre><code><span class="kw">public record</span> PageInfoDto(
+    String seed,
+    <span class="kw">@JsonProperty</span>(<span class="str">"results"</span>) int resultCount,
+    int page,
+    String version
+) {}</code></pre></div><div class="analysis-panel"><span class="analysis-label">LOKALNA DECYZJA</span><h3>Czytelna nazwa w Javie</h3><p>Adnotację stosuj tam, gdzie kontrakt naprawdę różni się od modelu. Nie dekoruj każdego pola bez potrzeby.</p></div></div></section>
+
+    <section class="slide" id="jackson-annotations" data-title="Adnotacje Jacksona" aria-labelledby="annotations-title"><div class="eyebrow">09 // NARZĘDZIA</div><h2 id="annotations-title">Adnotacje rozwiązują konkretne różnice kontraktu</h2><div class="cards three"><article><span class="card-code">@JsonProperty</span><h3>Nazwa</h3><p>Łączy inną nazwę pola JSON z komponentem Javy.</p></article><article><span class="card-code">@JsonIgnoreProperties</span><h3>Nadmiarowe pola</h3><p>Może jawnie tolerować nieznane elementy odpowiedzi.</p></article><article><span class="card-code">@JsonFormat</span><h3>Format</h3><p>Opisuje niestandardową reprezentację daty lub liczby.</p></article></div><div class="callout warning"><strong>Nie myl kierunków:</strong> odczyt JSON to deserializacja, zapis obiektu do JSON to serializacja.</div></section>
+
+    <section class="slide" id="configuration" data-title="Konfiguracja" aria-labelledby="configuration-title"><div class="eyebrow">10 // POZA KODEM</div><h2 id="configuration-title">Adres i parametry zależą od środowiska</h2><div class="two-col"><div class="code-panel" id="properties-code"><div class="code-head"><span>application.properties</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#properties-code">Powiększ</button></div></div><pre><code>randomuser.base-url=https://randomuser.me
+randomuser.results=${RANDOMUSER_RESULTS:2}
+randomuser.nationality=${RANDOMUSER_NATIONALITY:pl}
+randomuser.seed=${RANDOMUSER_SEED:jaz-lecture}</code></pre></div><div class="analysis-panel"><span class="analysis-label">PLACEHOLDER</span><h3>Zmienna albo wartość domyślna</h3><p><code>${NAME:default}</code> pozwala nadpisać ustawienie bez zmiany pliku i bez rekompilacji.</p></div></div></section>
+
+    <section class="slide example-slide" id="config-properties" data-title="ConfigurationProperties" aria-labelledby="config-properties-title"><div class="eyebrow">11 // TYPOWANA KONFIGURACJA</div><h2 id="config-properties-title">Grupa ustawień staje się jednym walidowanym obiektem</h2><div class="two-col"><div class="code-panel" id="config-record-code"><div class="code-head"><span>RandomUserProperties.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#config-record-code">Powiększ</button></div></div><pre><code><span class="kw">@Validated</span>
+<span class="kw">@ConfigurationProperties</span>(<span class="str">"randomuser"</span>)
+<span class="kw">public record</span> RandomUserProperties(
+    URI baseUrl,
+    <span class="kw">@Min</span>(1) <span class="kw">@Max</span>(100) int results,
+    <span class="kw">@NotBlank</span> String nationality,
+    <span class="kw">@NotBlank</span> String seed) {}</code></pre></div><div class="analysis-panel"><span class="analysis-label">FAIL FAST</span><h3>Błąd przy starcie</h3><p>Typy i walidacja zatrzymują aplikację, zanim niepoprawna konfiguracja dotrze do żądania HTTP.</p></div></div></section>
+
+    <section class="slide" id="value-vs-properties" data-title="Value czy Properties" aria-labelledby="value-title"><div class="eyebrow">12 // WYBÓR NARZĘDZIA</div><h2 id="value-title"><code>@Value</code> dla pojedynczej wartości, <code>@ConfigurationProperties</code> dla kontraktu</h2><div class="two-col"><div><h3>@Value</h3><ul class="mission-list"><li>szybki dostęp do jednej właściwości,</li><li>zależność rozproszona po beanach,</li><li>ograniczone relaxed binding i brak metadanych.</li></ul></div><div><h3>@ConfigurationProperties</h3><ul class="mission-list"><li>spójna grupa ustawień,</li><li>konwersja do <code>URI</code>, liczb i innych typów,</li><li>walidacja oraz wsparcie IDE.</li></ul></div></div></section>
+
+    <section class="slide" id="uri-problem" data-title="Budowanie URI" aria-labelledby="uri-problem-title"><div class="eyebrow">13 // NIE SKLEJAJ STRINGÓW</div><h2 id="uri-problem-title">Parametry zapytania mają własne reguły kodowania</h2><div class="two-col"><div class="code-panel" id="bad-uri"><div class="code-head"><span>kruchy zapis</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#bad-uri">Powiększ</button></div></div><pre><code>String url = base + <span class="str">"/api?seed="</span> + seed
+    + <span class="str">"&amp;results="</span> + count;</code></pre></div><div class="analysis-panel"><span class="analysis-label">PROBLEMY</span><h3>Spacje, znaki specjalne i separatory</h3><p>Ręczna konkatenacja miesza strukturę URI z danymi i łatwo generuje niepoprawne albo niebezpieczne adresy.</p></div></div></section>
+
+    <section class="slide example-slide" id="uri-builder" data-title="UriComponentsBuilder" aria-labelledby="uri-builder-title"><div class="eyebrow">14 // STRUKTURALNE URI</div><h2 id="uri-builder-title"><code>UriComponentsBuilder</code> rozdziela segmenty i parametry</h2><div class="code-panel" id="uri-code"><div class="code-head"><span>RandomUserClient.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#uri-code">Powiększ</button></div></div><pre><code>URI uri = UriComponentsBuilder
+    .fromUri(properties.baseUrl())
+    .pathSegment(<span class="str">"api"</span>, <span class="str">"1.4"</span>)
+    .queryParam(<span class="str">"results"</span>, properties.results())
+    .queryParam(<span class="str">"nat"</span>, properties.nationality())
+    .queryParam(<span class="str">"seed"</span>, properties.seed())
+    .build().encode().toUri();</code></pre></div><div class="callout"><strong>Kolejność ma znaczenie:</strong> najpierw podstawiamy wartości, potem kodujemy gotowe komponenty URI.</div></section>
+
+    <section class="slide" id="http-cycle" data-title="Cykl HTTP" aria-labelledby="http-cycle-title"><div class="eyebrow">15 // CO SIĘ DZIEJE</div><h2 id="http-cycle-title">Klient HTTP wykonuje więcej niż otwarcie połączenia</h2><div class="diagram-panel" id="http-flow"><div class="diagram-head"><span>ŻĄDANIE I ODPOWIEDŹ</span><button class="zoom-btn" type="button" data-zoom-target="#http-flow">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>URI + headers</strong><small>request</small></div><span class="connector">›</span><div class="node-box"><strong>HTTP status</strong><small>2xx / 4xx / 5xx</small></div><span class="connector">›</span><div class="node-box"><strong>converter</strong><small>JSON → DTO</small></div></div></div><p class="hint">Spring wybiera konwerter wiadomości na podstawie typu docelowego i Content-Type odpowiedzi.</p></section>
+
+    <section class="slide example-slide" id="rest-client-call" data-title="RestClient" aria-labelledby="rest-client-call-title"><div class="eyebrow">16 // SYNCHRONICZNY KLIENT</div><h2 id="rest-client-call-title"><code>RestClient</code> opisuje żądanie płynnym API i mapuje body</h2><div class="two-col"><div class="code-panel" id="rest-code"><div class="code-head"><span>RandomUserClient.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#rest-code">Powiększ</button></div></div><pre><code><span class="kw">public</span> RandomUserResponse fetchUsers() {
+    URI uri = buildUri();
+    <span class="kw">return</span> http.get()
+        .uri(uri)
+        .retrieve()
+        .body(RandomUserResponse.class);
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">SYNCHRONICZNIE</span><h3>Wątek czeka na odpowiedź</h3><p><code>retrieve()</code> obsługuje odpowiedź, a <code>body(...)</code> uruchamia konwersję JSON do wskazanego DTO.</p></div></div></section>
+
+    <section class="slide" id="rest-client-flow" data-title="Fluent API" aria-labelledby="rest-client-flow-title"><div class="eyebrow">17 // FLUENT API</div><h2 id="rest-client-flow-title">Każdy etap żądania ma własną odpowiedzialność</h2><div class="cards three"><article><span class="card-code">get / post</span><h3>Metoda</h3><p>Wybór operacji HTTP rozpoczyna budowanie żądania.</p></article><article><span class="card-code">uri + headers</span><h3>Żądanie</h3><p>Adres, nagłówki i opcjonalne body opisują dane wysyłane do API.</p></article><article><span class="card-code">retrieve</span><h3>Odpowiedź</h3><p><code>body</code>, <code>toEntity</code> lub obsługa statusu kończą wywołanie.</p></article></div><div class="callout"><strong>Czytelność:</strong> kod ma tę samą kolejność, co żądanie HTTP — metoda, URI, odpowiedź i jej reprezentacja.</div></section>
+
+    <section class="slide example-slide" id="rest-client-config" data-title="Konfiguracja RestClient" aria-labelledby="rest-client-config-title"><div class="eyebrow">18 // BEAN WSPÓŁDZIELONY</div><h2 id="rest-client-config-title">Spring Boot dostarcza skonfigurowany prototyp <code>RestClient.Builder</code></h2><div class="code-panel" id="rest-client-code"><div class="code-head"><span>HttpClientConfiguration.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#rest-client-code">Powiększ</button></div></div><pre><code><span class="kw">@Bean</span>
+RestClient restClient(RestClient.Builder builder) {
+    <span class="kw">return</span> builder
+        .requestFactory(requestFactory())
+        .build();
+}</code></pre></div><p class="hint">Wstrzykiwany builder zachowuje auto-konfigurację Spring Boot, a gotowy klient jest bezpieczny do współdzielenia między wątkami.</p></section>
+
+    <section class="slide" id="errors" data-title="Błędy HTTP" aria-labelledby="errors-title"><div class="eyebrow">19 // ŚCIEŻKI NEGATYWNE</div><h2 id="errors-title">Błąd transportu to nie to samo co błąd kontraktu</h2><div class="cards three"><article><span class="card-code">4xx / 5xx</span><h3>Status HTTP</h3><p>Domyślnie wyjątek klienta lub serwera HTTP.</p></article><article><span class="card-code">timeout</span><h3>Transport</h3><p>Brak połączenia lub odpowiedzi w oczekiwanym czasie.</p></article><article><span class="card-code">JSON</span><h3>Mapowanie</h3><p>Odpowiedź nie pasuje do oczekiwanego DTO.</p></article></div><div class="callout"><strong>Na granicy:</strong> przetłumacz wyjątek infrastruktury na błąd zrozumiały dla własnej aplikacji i zachowaj przyczynę.</div></section>
+
+    <section class="slide" id="timeouts" data-title="Timeouty" aria-labelledby="timeouts-title"><div class="eyebrow">20 // KLIENT PRODUKCYJNY</div><h2 id="timeouts-title">Każde zewnętrzne wywołanie potrzebuje limitu czasu</h2><div class="two-col"><div class="code-panel" id="timeout-code"><div class="code-head"><span>HttpClientConfiguration.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#timeout-code">Powiększ</button></div></div><pre><code><span class="kw">var</span> jdkClient = HttpClient.newBuilder()
+    .connectTimeout(Duration.ofSeconds(2))
+    .build();
+<span class="kw">var</span> factory = <span class="kw">new</span> JdkClientHttpRequestFactory(jdkClient);
+factory.setReadTimeout(Duration.ofSeconds(3));</code></pre></div><div class="analysis-panel"><span class="analysis-label">OGRANICZ OCZEKIWANIE</span><h3>Sieć może nie odpowiedzieć</h3><p>Timeout nie naprawia awarii, ale chroni pulę wątków i umożliwia kontrolowaną reakcję systemu.</p></div></div></section>
+
+    <section class="slide example-slide" id="test" data-title="Test klienta" aria-labelledby="test-title"><div class="eyebrow">21 // BEZ PRAWDZIWEJ SIECI</div><h2 id="test-title">Test kontroluje żądanie i odpowiedź</h2><div class="code-panel" id="test-code"><div class="code-head"><span>RandomUserClientTest.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#test-code">Powiększ</button></div></div><pre><code>MockRestServiceServer server =
+    MockRestServiceServer.bindTo(builder).build();
+
+server.expect(requestTo(expectedUri))
+    .andRespond(withSuccess(json, APPLICATION_JSON));
+
+RandomUserResponse response = client.fetchUsers();
+assertThat(response.results()).hasSize(1);
+server.verify();</code></pre></div><p class="hint">Test jest szybki i deterministyczny: nie zależy od internetu, limitów ani dostępności zewnętrznego dostawcy.</p></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // GRANICE SYSTEMU</div><h2 id="quiz-title">Który element rozwiązuje problem?</h2><div class="quiz-grid"><article><h3>1. Pole JSON ma inną nazwę</h3><p>Jak połączyć je z komponentem recordu?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>@JsonProperty</code> na komponencie rekordu.</div></article><article><h3>2. Seed zawiera spację</h3><p>Kto powinien ją zakodować?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>UriComponentsBuilder</code> podczas <code>encode()</code>.</div></article><article><h3>3. Potrzebujesz body odpowiedzi</h3><p>Jak kończysz wywołanie <code>RestClient</code>?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden><code>retrieve().body(Typ.class)</code>.</div></article></div></section>
+
+    <section class="slide" id="live-coding" data-title="Live coding" aria-labelledby="live-title"><div class="eyebrow">LAB // examples/http-client</div><h2 id="live-title">Zbuduj klienta od kontraktu, nie od metody HTTP</h2><div class="diagram-panel" id="live-flow"><div class="diagram-head"><span>KOLEJNOŚĆ PRACY</span><button class="zoom-btn" type="button" data-zoom-target="#live-flow">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>1. JSON</strong><small>poznaj kontrakt</small></div><span class="connector">›</span><div class="node-box"><strong>2. DTO + config</strong><small>nazwij dane</small></div><span class="connector">›</span><div class="node-box"><strong>3. HTTP + test</strong><small>połącz granicę</small></div></div></div><div class="callout"><strong>Zadanie:</strong> dodaj parametr <code>gender</code>, pole telefonu w DTO oraz test błędu 404.</div></section>
+
+    <section class="slide" id="summary" data-title="Podsumowanie" aria-labelledby="summary-title"><div class="eyebrow">22 // MODEL MENTALNY</div><h2 id="summary-title">Kontrakt określa DTO, konfiguracja określa cel, klient przenosi dane</h2><div class="diagram-panel" id="summary-flow"><div class="diagram-head"><span>OD ZEWNĘTRZNEGO API DO APLIKACJI</span><button class="zoom-btn" type="button" data-zoom-target="#summary-flow">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Properties + URI</strong><small>dokąd i z czym</small></div><span class="connector">›</span><div class="node-box"><strong>HTTP + Jackson</strong><small>transport i mapowanie</small></div><span class="connector">›</span><div class="node-box"><strong>record DTO</strong><small>jawny kontrakt</small></div></div></div><p class="final-line">NASTĘPNIE: <strong>RESTCONTROLLER I WŁASNE API HTTP</strong></p></section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog class="zoom-dialog" id="zoom-dialog" aria-labelledby="zoom-title"><div class="zoom-dialog-head"><span id="zoom-title">PODGLĄD POWIĘKSZONY</span><form method="dialog"><button class="zoom-close" type="submit">Zamknij</button></form></div><div class="zoom-content" id="zoom-content"></div></dialog>
+</body>
+</html>

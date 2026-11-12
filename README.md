@@ -10,6 +10,7 @@ Dostępne wykłady:
 - „Refleksja i badanie definicji klas” — `lectures/reflection/index.html`.
 - „Adnotacje w Javie” — `lectures/annotations/index.html`.
 - „Wprowadzenie do Spring” — `lectures/spring-intro/index.html`.
+- „DTO, record i klient HTTP” — `lectures/http-dto-records/index.html`.
 
 ## Uruchomienie strony
 
@@ -34,3 +35,5 @@ pod adresem `https://<użytkownik>.github.io/<repozytorium>/`.
 Projekty Maven znajdują się w katalogu `examples`. Wymagają Java 21.
 
 Projekt `examples/spring-intro` pokazuje kontener IoC i dependency injection bez Spring Boot.
+
+Projekt `examples/http-client` pokazuje rekordy DTO, konfigurację, budowanie URI i klienta HTTP.
