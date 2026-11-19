@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ORM, Hibernate i Spring Data JPA: konfiguracja PostgreSQL, encje, relacje, schemat i repozytoria.">
+  <meta name="theme-color" content="#071017">
+  <title>JAZ // ORM i Spring Data JPA</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <script src="../../js/app.js" defer></script>
+</head>
+<body data-deck-title="JAZ ORM + Spring Data JPA">
+  <a class="skip-link" href="#slides">Przejdź do wykładu</a>
+  <header class="topbar" aria-label="Pasek sterowania wykładem">
+    <a class="brand" href="../../index.html" aria-label="Wróć do strony głównej"><span class="brand-mark" aria-hidden="true">J//21</span><span><strong>JAVA ZAAWANSOWANA</strong><small>LECTURE DECK // DATA JPA</small></span></a>
+    <div class="telemetry" aria-hidden="true"><span>POSTGRES <b>READY</b></span><span>JPA <b>MAPPED</b></span></div>
+    <div class="slide-counter"><span id="current-slide">01</span><i>/</i><span id="total-slides">31</span></div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="slides" class="slides" tabindex="-1">
+    <section class="slide hero is-active" id="intro" data-title="Start" aria-labelledby="intro-title">
+      <div class="eyebrow">WYKŁAD 08 // 90 MIN // JAVA 21</div>
+      <div class="hero-grid"><div><p class="kicker">OBIEKTY ↔ RELACJE ↔ ZAPYTANIA</p><h1 id="intro-title">ORM i<br><em>Spring Data JPA</em></h1><p class="lead">Od pustej bazy PostgreSQL do encji, relacji i repozytorium, które wykonuje zapytania bez ręcznego zarządzania JDBC.</p><div class="objectives"><span>Po wykładzie:</span><ul><li>połączysz Spring Boot z PostgreSQL,</li><li>zamapujesz klasy i relacje na schemat,</li><li>zbudujesz zapytania przez nazwy metod, <code>@Query</code> i <code>@NamedQuery</code>.</li></ul></div></div><div class="reactor" aria-hidden="true"><div class="ring ring-a"></div><div class="ring ring-b"></div><div class="core">DB</div><span class="orbit o1">ENTITY</span><span class="orbit o2">SQL</span><span class="orbit o3">JPA</span></div></div>
+      <aside class="speaker-note">Pytanie otwierające: czym różni się obiekt w pamięci od wiersza w tabeli?</aside>
+    </section>
+
+    <section class="slide" id="layers" data-title="Warstwy" aria-labelledby="layers-title"><div class="eyebrow">01 // MODEL MENTALNY</div><h2 id="layers-title">Spring Data JPA nie jest bazą ani ORM-em</h2><div class="diagram-panel" id="layers-diagram"><div class="diagram-head"><span>STOS DOSTĘPU DO DANYCH</span><button class="zoom-btn" type="button" data-zoom-target="#layers-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Aplikacja</strong><small>serwis + repozytorium</small></div><span class="connector">›</span><div class="node-box"><strong>Spring Data JPA</strong><small>implementuje interfejs</small></div><span class="connector">›</span><div class="node-box"><strong>Hibernate</strong><small>provider JPA / ORM</small></div></div><div class="flow-diagram"><div class="node-box"><strong>JDBC</strong><small>sterownik PostgreSQL</small></div><span class="connector">›</span><div class="node-box"><strong>PostgreSQL</strong><small>tabele i SQL</small></div><span class="connector">›</span><div class="node-box"><strong>Dysk</strong><small>trwałe dane</small></div></div></div></section>
+
+    <section class="slide" id="orm" data-title="ORM" aria-labelledby="orm-title"><div class="eyebrow">02 // OBJECT–RELATIONAL MAPPING</div><h2 id="orm-title">ORM tłumaczy między dwoma różnymi modelami</h2><div class="two-col"><div><h3>Świat obiektowy</h3><ul class="mission-list"><li>tożsamość obiektu i referencje,</li><li>dziedziczenie i kolekcje,</li><li>graf obiektów w pamięci.</li></ul></div><div><h3>Świat relacyjny</h3><ul class="mission-list"><li>klucze główne i obce,</li><li>wiersze, kolumny i złączenia,</li><li>ograniczenia oraz transakcje.</li></ul></div></div><div class="callout"><strong>ORM nie usuwa SQL-a.</strong> Generuje go na podstawie mapowania i nadal wymaga rozumienia modelu relacyjnego.</div></section>
+
+    <section class="slide" id="dependencies" data-title="Starter" aria-labelledby="dependencies-title"><div class="eyebrow">03 // MAVEN</div><h2 id="dependencies-title">Starter JPA i sterownik wystarczą do rozpoczęcia</h2><div class="two-col"><div class="code-panel" id="deps-code"><div class="code-head"><span>pom.xml</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#deps-code">Powiększ</button></div></div><pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+  &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+  &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre></div><div class="analysis-panel"><span class="analysis-label">AUTO-KONFIGURACJA</span><h3>Boot składa warstwę danych</h3><p>Na podstawie classpath i właściwości tworzy m.in. <code>DataSource</code>, fabrykę <code>EntityManager</code> oraz menedżera transakcji.</p></div></div></section>
+
+    <section class="slide example-slide" id="docker" data-title="Docker" aria-labelledby="docker-title"><div class="eyebrow">04 // WINDOWS TERMINAL / POWERSHELL</div><h2 id="docker-title">PostgreSQL można postawić jednym poleceniem</h2><div class="two-col"><div class="code-panel" id="docker-code"><div class="code-head"><span>PowerShell</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#docker-code">Powiększ</button></div></div><pre><code>docker run --name jaz-postgres `
+  -e POSTGRES_DB=jazdb `
+  -e POSTGRES_USER=jaz `
+  -e POSTGRES_PASSWORD=jaz `
+  -p 5432:5432 `
+  -d postgres:17
+
+docker ps
+docker logs jaz-postgres
+docker exec -it jaz-postgres `
+  psql -U jaz -d jazdb</code></pre></div><div class="analysis-panel"><span class="analysis-label">WAŻNE W POWERSHELL</span><h3>Znak <code>`</code> kontynuuje polecenie</h3><p>Docker Desktop musi działać. Dane w tej wersji żyją w kontenerze; do pracy długoterminowej dodaj nazwany wolumen.</p><div class="callout warning"><strong>Tylko lokalnie:</strong> proste hasło dydaktyczne nie nadaje się do środowiska produkcyjnego.</div></div></div></section>
+
+    <section class="slide" id="docker-lifecycle" data-title="Kontener" aria-labelledby="docker-life-title"><div class="eyebrow">05 // CYKL ŻYCIA BAZY</div><h2 id="docker-life-title">Kontener można zatrzymać, wznowić i usunąć</h2><div class="cards three"><article><span class="card-code">docker stop</span><h3>Zatrzymaj</h3><p><code>docker stop jaz-postgres</code></p></article><article><span class="card-code">docker start</span><h3>Uruchom ponownie</h3><p><code>docker start jaz-postgres</code></p></article><article><span class="card-code">docker rm</span><h3>Usuń kontener</h3><p><code>docker rm -f jaz-postgres</code></p></article></div><div class="callout"><strong>Wolumen:</strong> dodaj <code>-v jaz-postgres-data:/var/lib/postgresql/data</code>, aby dane przetrwały usunięcie kontenera.</div></section>
+
+    <section class="slide example-slide" id="connection" data-title="Połączenie" aria-labelledby="connection-title"><div class="eyebrow">06 // APPLICATION.PROPERTIES</div><h2 id="connection-title">URL, użytkownik i hasło opisują połączenie</h2><div class="two-col"><div class="code-panel" id="properties-code"><div class="code-head"><span>application.properties</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#properties-code">Powiększ</button></div></div><pre><code>spring.datasource.url=
+  jdbc:postgresql://localhost:5432/jazdb
+spring.datasource.username=jaz
+spring.datasource.password=jaz
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true</code></pre></div><div class="analysis-panel"><span class="analysis-label">JDBC URL</span><h3>protokół : vendor : host : port / baza</h3><p><code>jdbc:postgresql://localhost:5432/jazdb</code></p><p>Klasy sterownika i dialektu zwykle nie trzeba ustawiać ręcznie — Boot i Hibernate wykrywają je z połączenia.</p></div></div></section>
+
+    <section class="slide" id="connection-flow" data-title="Połączenie" aria-labelledby="flow-title"><div class="eyebrow">07 // OD STARTU DO SQL</div><h2 id="flow-title">Pierwsze zapytanie przechodzi przez kilka komponentów</h2><div class="diagram-panel" id="connection-diagram"><div class="diagram-head"><span>ŚCIEŻKA WYKONANIA</span><button class="zoom-btn" type="button" data-zoom-target="#connection-diagram">Powiększ</button></div><div class="flow-diagram cycle"><div class="node-box"><strong>Repository</strong><small>wywołanie metody</small></div><span class="connector">›</span><div class="node-box"><strong>EntityManager</strong><small>kontekst trwałości</small></div><span class="connector">›</span><div class="node-box"><strong>Hibernate</strong><small>generuje SQL</small></div><span class="connector">›</span><div class="node-box"><strong>DataSource</strong><small>połączenie z puli</small></div></div></div></section>
+
+    <section class="slide example-slide" id="entity" data-title="Encja" aria-labelledby="entity-title"><div class="eyebrow">08 // KLASA ↔ TABELA</div><h2 id="entity-title">Encja ma tożsamość i mapowanie</h2><div class="two-col"><div class="code-panel" id="entity-code"><div class="code-head"><span>Book.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#entity-code">Powiększ</button></div></div><pre><code><span class="kw">@Entity</span>
+<span class="kw">@Table</span>(name = <span class="str">"books"</span>)
+<span class="kw">public class</span> Book {
+  <span class="kw">@Id</span>
+  <span class="kw">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+  <span class="kw">private</span> Long id;
+
+  <span class="kw">@Column</span>(nullable = false, length = 200)
+  <span class="kw">private</span> String title;
+
+  <span class="kw">protected</span> Book() { }
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">KONTRAKT JPA</span><h3>Konstruktor bezargumentowy</h3><p>Musi być co najmniej <code>protected</code>. Encja nie powinna być rekordem ani klasą <code>final</code>, ponieważ provider może korzystać z proxy.</p></div></div></section>
+
+    <section class="slide" id="mapping" data-title="Mapowanie" aria-labelledby="mapping-title"><div class="eyebrow">09 // NAJWAŻNIEJSZE ADNOTACJE</div><h2 id="mapping-title">Mapowanie można doprecyzować na poziomie tabeli i kolumn</h2><div class="cards three"><article><span class="card-code">@Entity / @Table</span><h3>Typ i tabela</h3><p>Nazwa encji w JPQL oraz fizyczna nazwa tabeli.</p></article><article><span class="card-code">@Id / @GeneratedValue</span><h3>Tożsamość</h3><p>Klucz główny i strategia generowania wartości.</p></article><article><span class="card-code">@Column</span><h3>Kolumna</h3><p>Nazwa, nullowalność, unikalność, długość i precyzja.</p></article></div></section>
+
+    <section class="slide" id="types" data-title="Typy" aria-labelledby="types-title"><div class="eyebrow">10 // TYPY WARTOŚCI</div><h2 id="types-title">Podstawowe typy Java mają naturalne odpowiedniki SQL</h2><div class="type-map"><span><b>String</b> varchar</span><span><b>Long</b> bigint</span><span><b>BigDecimal</b> numeric</span><span><b>LocalDate</b> date</span><span><b>Instant</b> timestamp with time zone</span><span><b>boolean</b> boolean</span></div><div class="callout warning"><strong>Pieniądze:</strong> używaj <code>BigDecimal</code>, a nie <code>double</code>. Dla enumów preferuj <code>@Enumerated(EnumType.STRING)</code>.</div></section>
+
+    <section class="slide" id="relation" data-title="Relacja" aria-labelledby="relation-title"><div class="eyebrow">11 // MANY-TO-ONE</div><h2 id="relation-title">Klucz obcy staje się referencją do encji</h2><div class="diagram-panel" id="er-diagram"><div class="diagram-head"><span>MODEL RELACYJNY</span><button class="zoom-btn" type="button" data-zoom-target="#er-diagram">Powiększ</button></div><div class="er-diagram"><article><strong>authors</strong><code>PK id</code><code>name</code></article><div class="er-link"><span>1</span><i></i><span>N</span></div><article><strong>books</strong><code>PK id</code><code>title</code><code>FK author_id</code></article></div></div></section>
+
+    <section class="slide example-slide" id="many-to-one" data-title="Relacja" aria-labelledby="many-title"><div class="eyebrow">12 // MAPOWANIE KLUCZA OBCEGO</div><h2 id="many-title"><code>@ManyToOne</code> wskazuje stronę posiadającą relację</h2><div class="two-col"><div class="code-panel" id="relation-code"><div class="code-head"><span>Book.java / Author.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#relation-code">Powiększ</button></div></div><pre><code><span class="cm">// Book</span>
+<span class="kw">@ManyToOne</span>(fetch = FetchType.LAZY,
+           optional = false)
+<span class="kw">@JoinColumn</span>(name = <span class="str">"author_id"</span>)
+<span class="kw">private</span> Author author;
+
+<span class="cm">// Author</span>
+<span class="kw">@OneToMany</span>(mappedBy = <span class="str">"author"</span>)
+<span class="kw">private final</span> List&lt;Book&gt; books =
+    <span class="kw">new</span> ArrayList&lt;&gt;();</code></pre></div><div class="analysis-panel"><span class="analysis-label">OWNING SIDE</span><h3><code>Book.author</code> kontroluje FK</h3><p><code>mappedBy</code> wskazuje pole po drugiej stronie. W kodzie domenowym warto synchronizować obie strony metodą, np. <code>author.addBook(book)</code>.</p></div></div></section>
+
+    <section class="slide" id="fetching" data-title="N+1" aria-labelledby="fetching-title"><div class="eyebrow">13 // SKĄD BIERZE SIĘ N+1</div><h2 id="fetching-title">Zapytanie pobiera encje główne, ale nie ich relacje</h2><div class="two-col"><div><p>Repozytorium wykonuje jedno zapytanie po listę autorów. Kolekcja <code>Author.books</code> jest oznaczona jako <code>LAZY</code>, więc początkowo zawiera tylko proxy — obietnicę pobrania danych później.</p><div class="callout"><strong>Moment wyzwalający:</strong> pierwsze użycie kolekcji każdego autora powoduje osobne zapytanie SQL.</div></div><div class="diagram-panel" id="nplusone-cause"><div class="diagram-head"><span>MECHANIZM</span><button class="zoom-btn" type="button" data-zoom-target="#nplusone-cause">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>findAll()</strong><small>lista autorów</small></div><span class="connector">›</span><div class="node-box"><strong>books = proxy</strong><small>jeszcze bez danych</small></div><span class="connector">›</span><div class="node-box"><strong>getBooks()</strong><small>dodatkowy SELECT</small></div></div></div></div><div class="callout warning"><strong>Ważne:</strong> samo <code>LAZY</code> nie jest błędem. Problem powstaje, gdy kod przechodzi po wielu encjach i dla każdej osobno inicjalizuje relację.</div></section>
+
+    <section class="slide example-slide" id="nplusone-example" data-title="N+1 przykład" aria-labelledby="nplusone-example-title"><div class="eyebrow">13A // KONKRETNY PRZYKŁAD</div><h2 id="nplusone-example-title">Trzech autorów oznacza cztery zapytania</h2><div class="two-col"><div class="code-panel" id="nplusone-code"><div class="code-head"><span>LibraryService.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#nplusone-code">Powiększ</button></div></div><pre><code><span class="kw">@Transactional</span>(readOnly = true)
+<span class="kw">public void</span> printBooks() {
+  List&lt;Author&gt; authors = repository.findAll();
+
+  <span class="kw">for</span> (Author author : authors) {
+    System.out.println(author.getBooks().size());
+  }
+}</code></pre></div><div class="code-panel" id="nplusone-sql"><div class="code-head"><span>SQL wygenerowany przez Hibernate</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#nplusone-sql">Powiększ</button></div></div><pre><code><span class="cm">-- 1 zapytanie główne</span>
+SELECT * FROM authors;
+
+<span class="cm">-- N zapytań: po jednym dla każdego autora</span>
+SELECT * FROM books WHERE author_id = 1;
+SELECT * FROM books WHERE author_id = 2;
+SELECT * FROM books WHERE author_id = 3;</code></pre></div></div><div class="query-stack"><div><strong>1</strong><span>pobranie wszystkich autorów</span></div><div><strong>+3</strong><span>inicjalizacja trzech kolekcji</span></div><div><strong>=4</strong><span>zapytania zamiast jednego</span></div></div></section>
+
+    <section class="slide" id="nplusone-solutions" data-title="N+1 rozwiązania" aria-labelledby="nplusone-solutions-title"><div class="eyebrow">13B // JAK USUNĄĆ N+1</div><h2 id="nplusone-solutions-title">Plan pobierania trzeba dopasować do przypadku użycia</h2><div class="cards three"><article><span class="card-code">JOIN FETCH</span><h3>Jawne JPQL</h3><p><code>select distinct a from Author a left join fetch a.books</code></p><p>Jedno zapytanie pobiera autorów razem z książkami.</p></article><article><span class="card-code">@EntityGraph</span><h3>Plan na metodzie</h3><p><code>@EntityGraph(attributePaths = "books")</code></p><p>Repozytorium deklaruje relacje potrzebne w tej operacji.</p></article><article><span class="card-code">DTO projection</span><h3>Tylko potrzebne dane</h3><p>Zapytanie zwraca płaską projekcję dopasowaną do widoku.</p><p>Nie buduje całego grafu encji.</p></article></div><div class="callout warning"><strong>Nie naprawiaj przez globalne <code>EAGER</code>.</strong> Może ono pobierać relacje także tam, gdzie nie są potrzebne, a przy niektórych zapytaniach nadal prowadzić do dodatkowych SELECT-ów.</div><div class="callout"><strong>Jak wykryć:</strong> włącz logowanie SQL, policz zapytania i obserwuj, czy ich liczba rośnie wraz z liczbą rekordów wynikowych.</div></section>
+
+    <section class="slide" id="ddl" data-title="Schemat" aria-labelledby="ddl-title"><div class="eyebrow">14 // GENEROWANIE TABEL</div><h2 id="ddl-title"><code>ddl-auto</code> steruje zachowaniem Hibernate wobec schematu</h2><div class="cards three"><article><span class="card-code">create / create-drop</span><h3>Nauka i testy</h3><p>Buduje schemat od zera; może usuwać dane.</p></article><article><span class="card-code">update</span><h3>Lokalny prototyp</h3><p>Próbuje dostosować schemat bez pełnej kontroli migracji.</p></article><article><span class="card-code">validate / none</span><h3>Środowiska trwałe</h3><p>Sprawdza zgodność albo nie dotyka DDL.</p></article></div><div class="callout danger"><strong>Produkcja:</strong> schemat rozwijaj kontrolowanymi migracjami Flyway/Liquibase, a nie przez <code>update</code>.</div></section>
+
+    <section class="slide" id="ddl-flow" data-title="Migracje" aria-labelledby="ddl-flow-title"><div class="eyebrow">15 // OD MODELU DO SCHEMATU</div><h2 id="ddl-flow-title">Dwa podejścia mają inne źródło prawdy</h2><div class="diagram-panel" id="ddl-diagram"><div class="diagram-head"><span>STRATEGIE</span><button class="zoom-btn" type="button" data-zoom-target="#ddl-diagram">Powiększ</button></div><div class="strategy-grid"><article><span>NAUKA</span><strong>Encje</strong><i>›</i><strong>Hibernate DDL</strong><i>›</i><strong>Schemat</strong></article><article><span>PRODUKCJA</span><strong>Migracje SQL</strong><i>›</i><strong>Schemat</strong><i>›</i><strong>validate</strong></article></div></div></section>
+
+    <section class="slide example-slide" id="repository" data-title="Repozytorium" aria-labelledby="repository-title"><div class="eyebrow">16 // SPRING DATA</div><h2 id="repository-title">Interfejs wystarcza do operacji CRUD</h2><div class="two-col"><div class="code-panel" id="repository-code"><div class="code-head"><span>BookRepository.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#repository-code">Powiększ</button></div></div><pre><code><span class="kw">public interface</span> BookRepository
+    <span class="kw">extends</span> JpaRepository&lt;Book, Long&gt; {
+}
+
+bookRepository.save(book);
+bookRepository.findById(id);
+bookRepository.findAll();
+bookRepository.deleteById(id);</code></pre></div><div class="analysis-panel"><span class="analysis-label">PROXY W RUNTIME</span><h3>Nie piszemy implementacji</h3><p>Spring Data tworzy obiekt implementujący interfejs. Parametry generyczne określają typ encji i typ jej identyfikatora.</p></div></div></section>
+
+    <section class="slide" id="derived" data-title="Nazwy metod" aria-labelledby="derived-title"><div class="eyebrow">17 // DERIVED QUERIES</div><h2 id="derived-title">Nazwa metody może być deklaracją zapytania</h2><div class="diagram-panel" id="method-diagram"><div class="diagram-head"><span>PARSER NAZWY</span><button class="zoom-btn" type="button" data-zoom-target="#method-diagram">Powiększ</button></div><div class="method-parts"><span>find</span><span>Top10</span><span>By</span><span>TitleContainingIgnoreCase</span><span>OrderBy</span><span>PublishedOnDesc</span></div></div><pre class="naming-example"><code>List&lt;Book&gt; findTop10ByTitleContainingIgnoreCaseOrderByPublishedOnDesc(String fragment);</code></pre></section>
+
+    <section class="slide" id="keywords" data-title="Konwencje" aria-labelledby="keywords-title"><div class="eyebrow">18 // SŁOWNIK METOD</div><h2 id="keywords-title">Predykaty składają się z nazw pól i słów kluczowych</h2><div class="cards three"><article><span class="card-code">find / read / get</span><h3>Operacja</h3><p><code>findByTitle</code>, <code>existsByIsbn</code>, <code>countByAuthor</code>.</p></article><article><span class="card-code">And / Or / Between</span><h3>Warunki</h3><p><code>findByPriceBetween</code>, <code>findByTitleAndStatus</code>.</p></article><article><span class="card-code">OrderBy / Top / First</span><h3>Wynik</h3><p><code>findFirstByOrderByCreatedAtDesc</code>.</p></article></div><div class="callout warning"><strong>Granica czytelności:</strong> kiedy nazwa staje się zdaniem wielokrotnie złożonym, przejdź do <code>@Query</code>.</div></section>
+
+    <section class="slide example-slide" id="query" data-title="@Query" aria-labelledby="query-title"><div class="eyebrow">19 // JAWNE JPQL</div><h2 id="query-title"><code>@Query</code> umieszcza zapytanie przy metodzie repozytorium</h2><div class="two-col"><div class="code-panel" id="query-code"><div class="code-head"><span>BookRepository.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#query-code">Powiększ</button></div></div><pre><code><span class="kw">@Query</span>(<span class="str">"""
+  select b from Book b
+  join fetch b.author
+  where lower(b.title) like lower(concat('%', :text, '%'))
+  order by b.publishedOn desc
+  """</span>)
+List&lt;Book&gt; search(<span class="kw">@Param</span>(<span class="str">"text"</span>) String text);</code></pre></div><div class="analysis-panel"><span class="analysis-label">JPQL ≠ SQL</span><h3>Operujemy na encjach i polach</h3><p><code>Book</code> to nazwa encji, a <code>b.author</code> to pole obiektu. Hibernate dopiero tłumaczy JPQL na SQL konkretnej bazy.</p></div></div></section>
+
+    <section class="slide" id="native" data-title="SQL" aria-labelledby="native-title"><div class="eyebrow">20 // JPQL VS NATIVE SQL</div><h2 id="native-title">Native query daje kontrolę kosztem przenośności</h2><div class="two-col"><div><h3>JPQL</h3><ul class="mission-list"><li>odwołuje się do encji,</li><li>jest niezależne od dialektu,</li><li>współpracuje z mapowaniem ORM.</li></ul></div><div><h3>Native SQL</h3><ul class="mission-list"><li>odwołuje się do tabel,</li><li>udostępnia funkcje PostgreSQL,</li><li>może wymagać jawnego <code>countQuery</code>.</li></ul></div></div><div class="callout"><strong>Spring Data 4:</strong> można użyć <code>@NativeQuery</code>; klasyczne <code>@Query(nativeQuery = true)</code> również jasno komunikuje intencję.</div></section>
+
+    <section class="slide example-slide" id="named-query" data-title="NamedQuery" aria-labelledby="named-title"><div class="eyebrow">21 // ZAPYTANIE NAZWANE</div><h2 id="named-title"><code>@NamedQuery</code> rejestruje zapytanie pod stałą nazwą</h2><div class="two-col"><div class="code-panel" id="named-code"><div class="code-head"><span>Book.java + BookRepository.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#named-code">Powiększ</button></div></div><pre><code><span class="kw">@Entity</span>
+<span class="kw">@NamedQuery</span>(
+  name = <span class="str">"Book.findPublished"</span>,
+  query = <span class="str">"select b from Book b "</span> +
+          <span class="str">"where b.published = true"</span>)
+<span class="kw">class</span> Book { ... }
+
+<span class="kw">interface</span> BookRepository
+    <span class="kw">extends</span> JpaRepository&lt;Book, Long&gt; {
+  List&lt;Book&gt; findPublished();
+}</code></pre></div><div class="analysis-panel"><span class="analysis-label">KONWENCJA NAZWY</span><h3><code>Encja.metodaRepozytorium</code></h3><p>Spring Data najpierw szuka <code>Book.findPublished</code>. <code>@Query</code> na metodzie ma pierwszeństwo przed named query.</p></div></div></section>
+
+    <section class="slide" id="query-choice" data-title="Wybór" aria-labelledby="choice-title"><div class="eyebrow">22 // DRABINA DECYZJI</div><h2 id="choice-title">Wybierz najprostszy czytelny mechanizm</h2><div class="diagram-panel" id="choice-diagram"><div class="diagram-head"><span>OD KONWENCJI DO PEŁNEJ KONTROLI</span><button class="zoom-btn" type="button" data-zoom-target="#choice-diagram">Powiększ</button></div><div class="flow-diagram cycle"><div class="node-box"><strong>CRUD</strong><small>JpaRepository</small></div><span class="connector">›</span><div class="node-box"><strong>Prosty filtr</strong><small>nazwa metody</small></div><span class="connector">›</span><div class="node-box"><strong>Złożone JPQL</strong><small>@Query</small></div><span class="connector">›</span><div class="node-box"><strong>SQL / custom</strong><small>pełna kontrola</small></div></div></div></section>
+
+    <section class="slide" id="transactions" data-title="Transakcje" aria-labelledby="tx-title"><div class="eyebrow">23 // GRANICA OPERACJI</div><h2 id="tx-title">Transakcję zwykle wyznacza metoda serwisu</h2><div class="two-col"><div class="code-panel" id="tx-code"><div class="code-head"><span>LibraryService.java</span><div class="code-actions"><button class="copy-btn" type="button">Kopiuj</button><button class="zoom-btn" type="button" data-zoom-target="#tx-code">Powiększ</button></div></div><pre><code><span class="kw">@Transactional</span>
+<span class="kw">public</span> Book publish(Long id) {
+  Book book = repository.findById(id)
+      .orElseThrow();
+  book.publish();
+  <span class="kw">return</span> book;
+}</code></pre></div><div><p>W kontekście trwałości Hibernate śledzi zmiany encji. Przy zatwierdzeniu transakcji wykonuje dirty checking i generuje <code>UPDATE</code>.</p><div class="callout"><strong>Nie zawsze potrzebujesz <code>save</code>:</strong> zarządzana encja zmieniona wewnątrz transakcji zostanie zsynchronizowana.</div></div></div></section>
+
+    <section class="slide" id="lifecycle" data-title="Stan encji" aria-labelledby="lifecycle-title"><div class="eyebrow">24 // PERSISTENCE CONTEXT</div><h2 id="lifecycle-title">Encja przechodzi między stanami</h2><div class="diagram-panel" id="state-diagram"><div class="diagram-head"><span>CYKL ŻYCIA ENCJI</span><button class="zoom-btn" type="button" data-zoom-target="#state-diagram">Powiększ</button></div><div class="flow-diagram cycle"><div class="node-box"><strong>Transient</strong><small>new Book()</small></div><span class="connector">›</span><div class="node-box"><strong>Managed</strong><small>persist / find</small></div><span class="connector">›</span><div class="node-box"><strong>Detached</strong><small>poza kontekstem</small></div><span class="connector">›</span><div class="node-box"><strong>Removed</strong><small>delete</small></div></div></div></section>
+
+    <section class="slide" id="pitfalls" data-title="Pułapki" aria-labelledby="pitfalls-title"><div class="eyebrow">25 // CO NAJCZĘŚCIEJ BOLI</div><h2 id="pitfalls-title">ORM jest wygodny, ale nie zwalnia z obserwowania SQL</h2><div class="cards three"><article><span class="card-code">N+1</span><h3>Za dużo zapytań</h3><p>Kolekcja lub relacja jest dociągana osobno dla każdego wiersza.</p></article><article><span class="card-code">equals/hashCode</span><h3>Niestabilna tożsamość</h3><p>Identyfikator generowany dopiero po zapisie wymaga ostrożnego kontraktu.</p></article><article><span class="card-code">toString / JSON</span><h3>Rekurencja i lazy load</h3><p>Dwukierunkowe relacje mogą zapętlić serializację lub wywołać SQL.</p></article></div></section>
+
+    <section class="slide example-slide" id="live" data-title="Live coding" aria-labelledby="live-title"><div class="eyebrow">LIVE CODING // 20 MIN</div><h2 id="live-title">Od pustej bazy do działającego repozytorium</h2><div class="two-col"><div class="analysis-panel mission-brief"><span class="analysis-label">SCENARIUSZ</span><ol><li>Uruchom PostgreSQL poleceniem Docker.</li><li>Skonfiguruj <code>application.properties</code>.</li><li>Dodaj <code>Author</code> i <code>Book</code>.</li><li>Włącz <code>ddl-auto=update</code> i obejrzyj tabele.</li><li>Dodaj repozytorium, derived query i <code>@Query</code>.</li></ol><p class="path">examples/spring-data-jpa</p></div><div class="diagram-panel" id="live-diagram"><div class="diagram-head"><span>PRZEPŁYW DEMONSTRACJI</span><button class="zoom-btn" type="button" data-zoom-target="#live-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Docker</strong><small>PostgreSQL</small></div><span class="connector">›</span><div class="node-box"><strong>Encje</strong><small>mapowanie</small></div><span class="connector">›</span><div class="node-box"><strong>Repository</strong><small>zapytania</small></div></div></div></div></section>
+
+    <section class="slide example-slide" id="quiz" data-title="Quiz" aria-labelledby="quiz-title"><div class="eyebrow">CHECKPOINT // ORM</div><h2 id="quiz-title">Który mechanizm wybierzesz?</h2><div class="quiz-grid"><article><h3>1. Prosty filtr</h3><p>Książki autora posortowane datą.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a1">Odkryj</button><div class="reveal" id="a1" hidden><code>findByAuthorOrderByPublishedOnDesc</code>.</div></article><article><h3>2. Złożone złączenie</h3><p>Potrzebujesz jawnego fetch join.</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a2">Odkryj</button><div class="reveal" id="a2" hidden><code>@Query</code> z JPQL albo <code>@EntityGraph</code>.</div></article><article><h3>3. Schemat produkcyjny</h3><p>Czy użyć <code>ddl-auto=update</code>?</p><button class="reveal-btn" type="button" aria-expanded="false" data-target="a3">Odkryj</button><div class="reveal" id="a3" hidden>Nie. Migracje oraz <code>validate</code>.</div></article></div></section>
+
+    <section class="slide" id="summary" data-title="Podsumowanie" aria-labelledby="summary-title"><div class="eyebrow">28 // MODEL MENTALNY</div><h2 id="summary-title">Encje opisują mapowanie, transakcja wyznacza pracę, repozytorium deklaruje dostęp</h2><div class="diagram-panel" id="summary-diagram"><div class="diagram-head"><span>CAŁOŚĆ</span><button class="zoom-btn" type="button" data-zoom-target="#summary-diagram">Powiększ</button></div><div class="flow-diagram"><div class="node-box"><strong>Model domeny</strong><small>@Entity + relacje</small></div><span class="connector">›</span><div class="node-box"><strong>Persistence context</strong><small>transakcja + Hibernate</small></div><span class="connector">›</span><div class="node-box"><strong>PostgreSQL</strong><small>tabele + SQL</small></div></div></div><p class="final-line">NASTĘPNIE: <strong>MIGRACJE, TESTY REPOZYTORIÓW I OPTYMALIZACJA ZAPYTAŃ</strong></p></section>
+  </main>
+
+  <nav class="controls" aria-label="Nawigacja slajdów"><button id="prev" type="button" aria-label="Poprzedni slajd">← <span>Wstecz</span></button><div class="slide-dots" id="slide-dots" aria-label="Lista slajdów"></div><button id="next" type="button"><span>Dalej</span> →</button></nav>
+  <div class="key-help" aria-hidden="true">← → nawigacja · F pełny ekran · Home start</div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog class="zoom-dialog" id="zoom-dialog" aria-labelledby="zoom-title"><div class="zoom-dialog-head"><span id="zoom-title">PODGLĄD POWIĘKSZONY</span><form method="dialog"><button class="zoom-close" type="submit">Zamknij</button></form></div><div class="zoom-content" id="zoom-content"></div></dialog>
+</body>
+</html>

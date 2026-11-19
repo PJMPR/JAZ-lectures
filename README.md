@@ -11,6 +11,7 @@ Dostępne wykłady:
 - „Adnotacje w Javie” — `lectures/annotations/index.html`.
 - „Wprowadzenie do Spring” — `lectures/spring-intro/index.html`.
 - „DTO, record i klient HTTP” — `lectures/http-dto-records/index.html`.
+- „ORM i Spring Data JPA” — `lectures/spring-data-jpa/index.html`.
 
 ## Uruchomienie strony
 
@@ -37,3 +38,5 @@ Projekty Maven znajdują się w katalogu `examples`. Wymagają Java 21.
 Projekt `examples/spring-intro` pokazuje kontener IoC i dependency injection bez Spring Boot.
 
 Projekt `examples/http-client` pokazuje rekordy DTO, konfigurację, budowanie URI i klienta HTTP.
+
+Projekt `examples/spring-data-jpa` pokazuje mapowanie encji, relację i repozytoria Spring Data JPA z PostgreSQL.
