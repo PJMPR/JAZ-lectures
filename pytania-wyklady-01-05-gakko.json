@@ -1,0 +1,2802 @@
+[
+  {
+    "Content": "Jakie korzyści daje użycie typów generycznych w Javie w porównaniu z operowaniem na typie Object?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Umożliwiają ponowne użycie algorytmu dla różnych typów",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Pozwalają zachować informację o typie i ograniczyć rzutowania",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Zastępują dziedziczenie w każdej sytuacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Wyłączają kontrolę typów kompilatora",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką rolę pełni parametr typu T w poniższej deklaracji klasy generycznej Box?</p><pre><code>class Box&lt;T&gt; {&#10;    private T value;&#10;    T get() { return value; }&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Nazwę obowiązkowej nadklasy",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Typ dostępny wyłącznie w runtime",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Miejsce na typ określany przy użyciu klasy",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Konkretną wartość liczbową",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Która z poniższych deklaracji ma poprawną składnię klasy generycznej Box z jednym parametrem typu T?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. generic class Box { }",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. class Box(T) { }",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. class <T> Box { }",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. class Box<T> { }",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jakie konsekwencje dla bezpieczeństwa typów ma użycie surowego typu List bez podania argumentu typu w poniższym kodzie?</p><pre><code>List values = new ArrayList();&#10;values.add(&quot;tekst&quot;);&#10;String value = (String) values.get(0);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Możliwe ostrzeżenia kompilatora",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Utrata części kontroli typów",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Gwarancja braku ClassCastException",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Automatyczna zamiana na List<Object>",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość wypisze poniższy kod, jeżeli klasa Box przechowuje wartość przekazaną do konstruktora, a metoda get() ją zwraca?</p><pre><code>Box&lt;Integer&gt; box = new Box&lt;&gt;(42);&#10;System.out.println(box.get());</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. value",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Kod się nie skompiluje",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. 42",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. null",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Dlaczego w Javie nie można przypisać List<String> do zmiennej typu List<Object>, mimo że String dziedziczy po Object?</p><pre><code>List&lt;String&gt; names = new ArrayList&lt;&gt;();&#10;// List&lt;Object&gt; objects = names;</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. List nie jest typem generycznym",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. String nie dziedziczy po Object",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Generyki Javy są niezmiennicze",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Można byłoby dodać Integer do listy napisów przez referencję List<Object>",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Które z poniższych przypisań są zgodne z zasadami niezmienniczości typów generycznych i użyciem wildcard?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. List<String> x = new ArrayList<>();",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. List<?> x = new ArrayList<String>();",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. List<Integer> x = new ArrayList<Number>();",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. List<Object> x = new ArrayList<String>();",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jaki najdokładniejszy typ można bezpiecznie przyjąć przy odczycie elementu z List<?>, gdy rzeczywisty argument typu listy jest nieznany?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. null",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Wartość zawsze jako String",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Dokładny typ elementu bez dodatkowych informacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Wartość jako Object",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Która z poniższych operacji jest poprawna dla zmiennej values typu List<?>, jeżeli nie znamy konkretnego typu jej elementów?</p><pre><code>List&lt;?&gt; values = List.of(&quot;A&quot;, &quot;B&quot;);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. values.add(1)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Object x = values.get(0)",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. values.add(\"A\")",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. String x = values.get(0)",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jakie konsekwencje ma ograniczenie parametru typu zapisem <T extends Number> w poniższej metodzie?</p><pre><code>static &lt;T extends Number&gt; double twice(T value) {&#10;    return value.doubleValue() * 2;&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. T może być Number albo jego podtypem",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. T musi być klasą Number dokładnie",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. T może być dowolnym typem prymitywnym",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. W kodzie można używać metod dostępnych w Number",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Która deklaracja parametru typu T wymaga, aby T implementował interfejs Comparable<T>?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. <T super Comparable<T>>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. <Comparable<T>>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. <T extends Comparable<T>>",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. <T implements Comparable<T>>",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość otrzyma zmienna result po wywołaniu generycznej metody first dla listy liczb całkowitych?</p><pre><code>static &lt;T&gt; T first(List&lt;T&gt; values) {&#10;    return values.get(0);&#10;}&#10;var result = first(List.of(3, 6, 9));</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Błąd kompilacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. 6",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. null",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. 3",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>W jakiej sytuacji należy zastosować wildcard ? extends T, tak jak w parametrze poniższej metody sum?</p><pre><code>static double sum(List&lt;? extends Number&gt; values) {&#10;    return values.stream().mapToDouble(Number::doubleValue).sum();&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Gdy głównie odczytujemy wartości jako T",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Gdy źródło może przechowywać podtyp T",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Gdy chcemy swobodnie dodawać dowolne T",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Gdy wymagamy dokładnie List<T>",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>W jakiej sytuacji należy zastosować wildcard ? super T, tak jak w parametrze poniższej metody addDefaults?</p><pre><code>static void addDefaults(List&lt;? super Integer&gt; values) {&#10;    values.add(0);&#10;    values.add(1);&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Gdy chcemy odczytywać elementy dokładnie jako T bez rzutowania",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Wyłącznie dla typów liczbowych",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Gdy lista może przechowywać T lub jego nadtyp",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Gdy odbiorca ma przyjmować wartości T",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jak zasada PECS opisuje dobór ? extends i ? super dla parametrów będących producentami lub odbiorcami danych?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Źródło danych zwykle używa extends",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Odbiorca danych zwykle używa super",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Producer Extends, Consumer Super",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Public Extends, Class Super",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Która z poniższych instrukcji nie skompiluje się dla zmiennej numbers typu List<? extends Number>?</p><pre><code>List&lt;? extends Number&gt; numbers = List.of(1, 2, 3);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. numbers.add(1)",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Number n = numbers.get(0)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. int size = numbers.size()",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Object x = numbers.get(0)",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką rolę pełni operator diamentowy <> po prawej stronie poniższej deklaracji mapy?</p><pre><code>Map&lt;String, Integer&gt; scores = new HashMap&lt;&gt;();</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Zastępuje wildcard",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Usuwa generyki w czasie kompilacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Pozwala wnioskować argumenty typu z kontekstu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Skraca powtarzanie typu po prawej stronie",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Na czym polega mechanizm type erasure używany do implementacji typów generycznych w Javie i jaka jest jedna z jego konsekwencji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Usunięciem obiektów przez garbage collector",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Powodem, dla którego nie można utworzyć new T()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Mechanizmem zmieniającym każdy typ na String",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Mechanizmem implementacji generyków przez usunięcie części informacji o parametrach typu po kompilacji",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Która z poniższych instrukcji jest niedozwolona w zwykłej klasie generycznej z parametrem typu T z powodu type erasure?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. new T()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. T get() { return value; }",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. T value;",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. List<T> values;",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Które stwierdzenia poprawnie opisują role parametrów src i dst oraz dozwolone użycie poniższej metody copy?</p><pre><code>static &lt;T&gt; void copy(List&lt;? extends T&gt; src,&#10;                     List&lt;? super T&gt; dst) {&#10;    for (T value : src) dst.add(value);&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Może dodawać Number do src",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. src jest producentem",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Może kopiować Integer do List<Number>",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. dst jest konsumentem",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Czym jest wyrażenie lambda w Javie i w jaki sposób wiąże się z interfejsem funkcyjnym?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Sposobem przekazania zachowania jako argumentu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Funkcją istniejącą bez typu docelowego",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Zwięzłą implementacją interfejsu funkcyjnego",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Nowym rodzajem klasy dziedziczącej",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jakie właściwości musi mieć interfejs Validator<T>, aby był interfejsem funkcyjnym i mógł być typem docelowym lambdy?</p><pre><code>@FunctionalInterface&#10;interface Validator&lt;T&gt; {&#10;    boolean test(T value);&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Może być celem lambdy",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Ma dokładnie jedną metodę abstrakcyjną",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Nie może mieć metod default",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Musi mieć adnotację @FunctionalInterface",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Co kompilator weryfikuje po dodaniu adnotacji @FunctionalInterface do poniższego interfejsu Task?</p><pre><code>@FunctionalInterface&#10;interface Task {&#10;    void run();&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Czy każda metoda jest static",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Czy lambda zwraca boolean",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Czy interfejs ma jedną metodę abstrakcyjną",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Czy interfejs ma poprawny kontrakt funkcyjny",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Która lambda może zostać przypisana do Predicate<String> i zwraca true wyłącznie dla pustego napisu?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. s -> s.isEmpty()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. s -> s.length()",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. (s, t) -> s.equals(t)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. () -> true",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość wypisze wywołanie funkcji length dla napisu \"lambda\" w poniższym kodzie?</p><pre><code>Function&lt;String, Integer&gt; length = s -&gt; s.length();&#10;System.out.println(length.apply(&quot;lambda&quot;));</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. 3",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. 6",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. true",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Kod się nie skompiluje",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Który standardowy interfejs funkcyjny z pakietu java.util.function opisuje funkcję przyjmującą wartość typu T i zwracającą wartość typu R?</p><pre><code>Function&lt;String, Integer&gt; length = String::length;</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Supplier<T>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Predicate<T>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Function<T, R>",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Consumer<T>",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Który standardowy interfejs funkcyjny opisuje operację przyjmującą jeden argument typu T i niezwracającą wyniku?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. UnaryOperator<T>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Function<T, Void>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Supplier<T>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Consumer<T>",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Który standardowy interfejs funkcyjny opisuje operację bez argumentów, która dostarcza wartość typu T?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Consumer<T>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. BiFunction<T, U, R>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Predicate<T>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Supplier<T>",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość otrzyma zmienna result po zastosowaniu operatora add do argumentów 10 i 5?</p><pre><code>BinaryOperator&lt;Integer&gt; add = (a, b) -&gt; a + b;&#10;int result = add.apply(10, 5);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. false",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. 5",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. 15",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. 10",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>W jakich warunkach składnia lambdy pozwala pominąć nawiasy wokół listy parametrów?</p><pre><code>Predicate&lt;String&gt; nonEmpty = s -&gt; !s.isEmpty();</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Gdy lambda nie ma parametrów",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Gdy lambda ma jeden parametr bez jawnie podanego typu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Zawsze",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Gdy lambda ma dwa parametry",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Kiedy ciało lambdy zwracającej wartość musi używać bloku w klamrach oraz jawnych instrukcji return?</p><pre><code>Function&lt;Integer, Integer&gt; abs = n -&gt; {&#10;    if (n &lt; 0) return -n;&#10;    return n;&#10;};</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Dla ciała składającego się z wielu instrukcji zwracających wartość",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Gdy typ wyniku to void",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Dla pojedynczego wyrażenia",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Dla referencji do metody",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które z poniższych wyrażeń można przypisać do Consumer<String>, czyli operacji przyjmującej String i niezwracającej wartości?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. (a, b) -> a + b",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. () -> \"tekst\"",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. System.out::println",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. s -> System.out.println(s)",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jak należy interpretować referencję do metody instancyjnej niezwiązanego obiektu String::length w pokazanym przypisaniu?</p><pre><code>Function&lt;String, Integer&gt; length = String::length;</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Wywołanie length na otrzymanym obiekcie String",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Możliwy zamiennik lambdy s -> s.length()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Utworzenie nowego String",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Dostęp do pola length",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Która referencja do metody jest równoważna lambdzie s -> System.out.println(s)?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. String::println",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. System.out::println",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. PrintStream::new",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. System::out",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Dlaczego zmienna lokalna threshold przechwycona przez lambdę musi pozostać final lub effectively final?</p><pre><code>int threshold = 10;&#10;Predicate&lt;Integer&gt; large = n -&gt; n &gt; threshold;</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Chroni to przed niejednoznaczną współdzieloną mutacją lokalnej zmiennej",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Lambda może istnieć dłużej niż wykonanie metody",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Każda zmienna w Javie jest final",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Java zabrania zmiany jej wartości po przypisaniu",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Która linia narusza zasadę effectively final dla zmiennej limit przechwyconej przez lambdę i powoduje błąd kompilacji?</p><pre><code>int limit = 3;&#10;Predicate&lt;Integer&gt; filter = n -&gt; n &gt; limit;&#10;limit++;</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Predicate<Integer> filter = n -> n > limit",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. filter.test(4)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. limit++",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. System.out.println(limit)",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaki ciąg znaków zostanie wypisany po synchronicznym wywołaniu obu obiektów Runnable w podanej kolejności?</p><pre><code>Runnable first = () -&gt; System.out.print(&quot;A&quot;);&#10;Runnable second = () -&gt; System.out.print(&quot;B&quot;);&#10;first.run();&#10;second.run();</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. AB",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. A",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. B",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Nic",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jakie korzyści daje używanie standardowych interfejsów z pakietu java.util.function zamiast tworzenia wielu własnych interfejsów o tym samym kształcie?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Zawsze działają asynchronicznie",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Eliminują potrzebę typów",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Ułatwiają łączenie API i zachowań",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Zmniejszają liczbę własnych interfejsów o tym samym kształcie",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość logiczną zwróci predicate.test(\"Java\"), jeżeli predykat sprawdza, czy długość napisu jest co najmniej równa 4?</p><pre><code>Predicate&lt;String&gt; predicate = s -&gt; s.length() &gt;= 4;</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. false",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. true",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. 4",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Błąd kompilacji",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które stwierdzenia poprawnie opisują różnice i podobieństwa między klasą anonimową a lambdą w Javie?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Lambda zwykle ma mniej składni dla interfejsu funkcyjnego",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Klasa anonimowa może deklarować dodatkowe elementy",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Lambda może implementować klasę abstrakcyjną",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Lambda wykorzystuje typ docelowy z kontekstu",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Czym jest java.util.stream.Stream i czym różni się od kolekcji przechowującej elementy?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Kolekcją przechowującą elementy",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Abstrakcją obliczeń nad źródłem danych",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Potokiem operacji na danych",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Strumieniem wejścia plikowego",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które z wymienionych metod Stream są operacjami pośrednimi, czyli zwracają kolejny strumień i budują potok?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. filter",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. collect",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. sorted",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. map",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Które z wymienionych metod Stream są operacjami terminalnymi, czyli uruchamiają przetwarzanie i kończą potok?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. filter",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. toList",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. forEach",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. count",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Co w praktyce oznacza leniwe wykonywanie operacji pośrednich w potoku Stream?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Nie wykonują pełnej pracy bez operacji terminalnej",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Mogą być łączone w potok",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Zawsze działają w osobnym wątku",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Automatycznie zapisują wynik w liście",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką listę utworzy poniższy potok po odfiltrowaniu liczb nieparzystych i pomnożeniu pozostałych elementów przez 2?</p><pre><code>var result = List.of(1, 2, 3, 4).stream()&#10;    .filter(n -&gt; n % 2 == 0)&#10;    .map(n -&gt; n * 2)&#10;    .toList();</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. [2, 4]",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. [8, 4]",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. [4, 8]",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. [2, 4, 6, 8]",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jak metoda Stream.filter(Predicate) wpływa na elementy strumienia i liczbę elementów przekazywanych dalej?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Pozostawia elementy spełniające Predicate",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Jest operacją terminalną",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Zmienia typ elementu",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Może zmniejszyć liczbę elementów",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jak metoda Stream.map(Function) przekształca elementy strumienia i czy może zmienić ich typ?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Usuwa duplikaty",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Może zmienić typ elementów strumienia",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Przekształca każdy element",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Zawsze zwraca Stream<String>",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość otrzyma zmienna count po policzeniu napisów o długości większej niż 2?</p><pre><code>long count = Stream.of(&quot;A&quot;, &quot;BB&quot;, &quot;CCC&quot;, &quot;DDDD&quot;)&#10;    .filter(s -&gt; s.length() &gt; 2)&#10;    .count();</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. 0",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. 3",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. 4",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. 2",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jak działa Stream.flatMap i czym jego wynik różni się od wyniku zwykłego mapowania do strumieni lub kolekcji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Spłaszcza zagnieżdżone strumienie",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Łączy mapowanie z rozwinięciem wielu wyników",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Sortuje elementy",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Kończy potok",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką listę utworzy poniższy potok po zamianie każdego elementu będącego listą na strumień jej elementów?</p><pre><code>var result = List.of(List.of(&quot;A&quot;, &quot;B&quot;), List.of(&quot;C&quot;))&#10;    .stream().flatMap(List::stream).toList();</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. [A, B]",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. [C]",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. [[A, B], [C]]",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. [A, B, C]",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jak działa operacja Stream.distinct i na jakiej podstawie rozpoznaje duplikaty?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Usuwa duplikaty według equals i hashCode",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Działa tylko dla liczb",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Jest operacją pośrednią",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Sortuje rosnąco",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które operacje terminalne Stream są krótkiego spięcia i mogą zakończyć przeglądanie elementów przed dotarciem do końca źródła?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. map",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. allMatch",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. findFirst",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. anyMatch",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość logiczną zwróci anyMatch dla strumienia 2, 4, 7, 8, jeżeli predykat sprawdza nieparzystość?</p><pre><code>boolean result = Stream.of(2, 4, 7, 8)&#10;    .anyMatch(n -&gt; n % 2 != 0);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. true",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. false",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Optional",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. 3",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Dlaczego Stream.findFirst() zwraca Optional<T> zamiast bezpośrednio wartości typu T?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Wynik może nie istnieć",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Strumień może być pusty",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Każdy element może być null",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Optional przechowuje wiele elementów",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość otrzyma zmienna sum po zredukowaniu liczb 1, 2, 3 i 4 operacją dodawania z wartością początkową 0?</p><pre><code>int sum = Stream.of(1, 2, 3, 4)&#10;    .reduce(0, Integer::sum);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. 4",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Optional.empty",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. 24",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. 10",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jaką rolę pełni liczba 0 przekazana jako pierwszy argument reduce(0, Integer::sum)?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Indeks pierwszego elementu",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Limit liczby elementów",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Wartość początkową akumulacji",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Element neutralny dodawania",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Które z poniższych kolektorów lub operacji terminalnych materializują elementy strumienia w strukturze wynikowej?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. collect(...)",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Collectors.groupingBy(...)",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. toList()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. peek(...)",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaki typ zostanie wywnioskowany dla zmiennej grouped po pogrupowaniu napisów według ich długości?</p><pre><code>var grouped = Stream.of(&quot;A&quot;, &quot;BB&quot;, &quot;CC&quot;)&#10;    .collect(Collectors.groupingBy(String::length));</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Map<Integer, List<String>>",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Map<String, Integer>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. List<Map<Integer, String>>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Stream<String>",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Dlaczego po wykonaniu operacji terminalnej nie można uruchomić kolejnej operacji na tej samej instancji Stream?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Każdy Stream implementuje Closeable",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Stream jest jednorazowym potokiem",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Źródłowa kolekcja zostaje usunięta",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Operacja terminalna zamyka możliwość dalszego użycia",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Które praktyki pomagają tworzyć czytelne potoki Stream o przewidywalnym działaniu?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Umieszczanie całej logiki w jednym peek",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Nazwanie złożonych predykatów",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Dobór kolejności operacji do celu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Unikanie efektów ubocznych w map i filter",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Czym jest refleksja w Javie i jakiego rodzaju informacje pozwala badać w czasie działania programu?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Badaniem klas i obiektów w czasie działania",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Rodzajem dziedziczenia",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. API opisującym metadane typów",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Mechanizmem zmiany kodu źródłowego przez kompilator",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Który zapis pozwala uzyskać obiekt Class<String> bez posiadania instancji klasy String?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. new Class<String>()",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Class.of(String)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. String.class",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. String.getClass()",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które wyrażenie zwraca obiekt Class opisujący rzeczywistą klasę istniejącego obiektu value?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. getClass(value)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. value.class",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Class.get(value)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. value.getClass()",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaki tekst wypisze getName() dla obiektu Class reprezentującego java.util.ArrayList?</p><pre><code>Class&lt;?&gt; type = ArrayList.class;&#10;System.out.println(type.getName());</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. java.lang.Class",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. java.util.ArrayList",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. List",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. ArrayList.class",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jak różnią się wartości zwracane przez Class.getName() i Class.getSimpleName() dla zwykłej klasy w pakiecie?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. getSimpleName zwraca nazwę bez pakietu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Obie zawsze zwracają to samo",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. getName zwraca nazwę kwalifikowaną",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. getName zwraca nazwę zmiennej",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jakie pola zwraca Class.getDeclaredFields() w odniesieniu do widoczności i dziedziczenia?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Także pola prywatne danej klasy",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Tylko pola publiczne",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Wszystkie odziedziczone pola publiczne i prywatne",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Pola zadeklarowane bezpośrednio w klasie",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jakie pola zwraca Class.getFields() w odniesieniu do widoczności i dziedziczenia?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Wyłącznie pola zadeklarowane bezpośrednio",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Tablicę obiektów Field",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Wszystkie prywatne pola",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Publiczne pola klasy i jej przodków",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jakie informacje i operacje udostępnia obiekt java.lang.reflect.Field opisujący pole klasy?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Nazwę i typ pola",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Wartość dla wskazanego obiektu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Modyfikatory",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Kod źródłowy inicjalizatora",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jakie obiekty są potrzebne, aby przez Field.get(...) odczytać wartość pola instancyjnego?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Obiekt docelowy",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Zawsze null jako argument get",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Obiekt Field",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Nazwa pakietu",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Co może być wymagane lub jaki wyjątek może wystąpić przy próbie odczytania przez Field.get(target) niedostępnego pola prywatnego?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Błąd składni",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Konieczność świadomej zmiany dostępności",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Automatyczne udostępnienie pola",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. IllegalAccessException",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jak działa AccessibleObject.trySetAccessible() i co oznacza zwracana przez tę metodę wartość?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Zmienia modyfikator w kodzie źródłowym",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Próbuje umożliwić refleksyjny dostęp",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Zwraca informację o powodzeniu",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Gwarantuje dostęp niezależnie od modułów",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką nazwę wypisze kod pobierający pierwszy komponent rekordu Point(int x, int y)?</p><pre><code>record Point(int x, int y) {}&#10;var components = Point.class.getRecordComponents();&#10;System.out.println(components[0].getName());</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Błąd kompilacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. 0",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. size",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. x",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jakie metadane oraz operacje związane z wywołaniem metody udostępnia obiekt java.lang.reflect.Method?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Nazwę metody",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Możliwość invoke",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Ciało metody jako kod Java",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Typ wyniku i parametrów",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Co reprezentuje pierwszy argument target w wywołaniu method.invoke(target, args) dla metody instancyjnej?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Obiekt, na którym wywołujemy metodę instancyjną",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Obiekt Class metody",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Typ wyniku",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Pierwszy parametr badanej metody",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jaką wartość należy przekazać jako obiekt docelowy do Method.invoke podczas refleksyjnego wywoływania metody statycznej?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Przekazać Class jako pierwszy argument",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Użyć Method.invokeStatic()",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Przekazać null jako obiekt docelowy",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Zawsze utworzyć instancję klasy",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jaki wyjątek refleksji opakowuje wyjątek rzucony przez metodę wywołaną za pomocą Method.invoke?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. IllegalArgumentException zawsze",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. NoSuchFieldException",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. ClassNotFoundException",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. InvocationTargetException",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jak działa Class.forName(\"pl.pjatk.Product\") i jaki wyjątek kontrolowany może zgłosić?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Zwraca obiekt Class",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Może rzucić ClassNotFoundException",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Próbuje załadować klasę o podanej nazwie",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Kompiluje plik Product.java",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość zwróci isAssignableFrom, gdy sprawdzamy, czy referencja typu Number może wskazywać obiekt Integer?</p><pre><code>boolean result = Number.class.isAssignableFrom(Integer.class);</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. true",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. false",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Błąd kompilacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. null",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jak za pomocą API refleksji odczytać deklarowany argument String z typu pola List<String>?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Użyć tylko field.getType()",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Sprawdzić, czy wynik jest ParameterizedType",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Odczytać getActualTypeArguments()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Odczytać getGenericType()",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Jakie koszty i ryzyka należy uwzględnić przy korzystaniu z refleksji zamiast zwykłych wywołań i dostępu sprawdzanego przez kompilator?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Automatyczna poprawa wydajności",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Słabsza kontrola kompilatora",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Możliwe błędy dopiero w runtime",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Większa złożoność i koszt wywołań",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Czym jest adnotacja w Javie i w jaki sposób deklaruje się jej typ?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Typem deklarowanym przez @interface",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Kod wykonywany automatycznie przez JVM",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Komentarzem usuwanym zawsze przed kompilacją",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Metadanymi przypisanymi do elementu programu",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Które mechanizmy lub elementy programu interpretują adnotacje i nadają ich metadanym konkretne znaczenie?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Kompilator, narzędzie albo framework, który ją przetwarza",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Kod korzystający z refleksji lub procesora adnotacji",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Wyłącznie garbage collector",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Sama adnotacja przez swoje elementy",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Co kompilator sprawdza dzięki użyciu @Override nad deklaracją metody?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Czy klasa jest final",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Pomaga wykryć literówkę w sygnaturze",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Czy metoda rzeczywiście przesłania metodę przodka",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Uruchamia metodę bazową",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jakie znaczenie dla użytkowników API i narzędzi kompilacyjnych ma oznaczenie elementu adnotacją @Deprecated?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Metoda zostanie natychmiast usunięta",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Kod nie może się skompilować",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Narzędzia mogą wyświetlić ostrzeżenie",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. API nie jest zalecane do nowego użycia",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Który zapis używa poprawnej składni do zadeklarowania własnego typu adnotacji Audited?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. public @interface Audited { }",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. public annotation Audited { }",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. public interface @Audited { }",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. @interface class Audited { }",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Co oznacza brak wartości domyślnej default w deklaracji elementu typu adnotacji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Element jest prywatny",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Element zawsze ma wartość null",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Adnotacja nie może być użyta",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Wartość trzeba podać przy użyciu adnotacji",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Które sposoby użycia są poprawne dla pokazanej adnotacji Scheduled, której wymagany element nazywa się delaySeconds?</p><pre><code>public @interface Scheduled {&#10;    long delaySeconds();&#10;}</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. @Scheduled(delaySeconds = 30)",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. @Scheduled(delaySeconds: 30)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. @Scheduled(30)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. @Scheduled()",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Kiedy wartość elementu adnotacji można podać skrótowo jako @Role(\"ADMIN\") bez zapisu nazwa = wartość?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Gdy pojedynczy przypisywany element nazywa się value",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Gdy value ma typ String",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Gdy adnotacja ma element value()",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Dla dowolnego elementu o dowolnej nazwie",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które z podanych typów mogą być typami elementów deklarowanych we własnej adnotacji w Javie?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Dowolny obiekt domenowy",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Class",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. String",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. enum",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Której z podanych wartości nie wolno użyć jako wartości elementu adnotacji w Javie?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Stała enum",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Class<?>",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. literał String",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. null",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Co określa metaadnotacja @Target umieszczona na deklaracji własnej adnotacji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Miejsca, w których można użyć adnotacji",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Typ odbiorcy metadanych",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Czas przechowywania adnotacji",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Nazwę klasy docelowej",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Która stała ElementType w @Target pozwala stosować adnotację bezpośrednio do deklaracji metod?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. TYPE",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. METHOD",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. PARAMETER",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. FIELD",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Która stała ElementType obejmuje deklaracje klas, interfejsów, typów enum i rekordów?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. CONSTRUCTOR",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. TYPE",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. ANNOTATION_TYPE",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. TYPE_USE",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Co oznacza zastosowanie @Retention(RetentionPolicy.RUNTIME) do typu adnotacji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Adnotacja pozostaje dostępna dla refleksji",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Adnotacja istnieje tylko w kodzie źródłowym",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Adnotacja trafia do pliku class",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. JVM automatycznie wykonuje oznaczoną metodę",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Która wartość RetentionPolicy powoduje, że adnotacja jest dostępna tylko w źródle i nie trafia do pliku .class?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. RUNTIME",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. METHOD",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. CLASS",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. SOURCE",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "<p>Jaką wartość wypisze kod po refleksyjnym pobraniu adnotacji @Scheduled z metody clean i odczytaniu elementu name?</p><pre><code>@Scheduled(delaySeconds = 30, name = &quot;cleanup&quot;)&#10;void clean() {}&#10;&#10;Scheduled config = method.getAnnotation(Scheduled.class);&#10;System.out.println(config.name());</code></pre>",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. null",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. job",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. cleanup",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Błąd kompilacji",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Co zwraca getAnnotation(Scheduled.class), jeżeli badany element nie ma adnotacji Scheduled?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Nową adnotację z wartościami domyślnymi",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. null",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Optional.empty()",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. false",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Jakie warunki muszą być spełnione, aby program mógł odnaleźć adnotację @Scheduled na metodach za pomocą refleksji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. @Retention(RetentionPolicy.RUNTIME)",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. @Target(ElementType.METHOD)",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "C. Adnotacja musi dziedziczyć po RuntimeException",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "D. Skanowanie odpowiednich metod",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  },
+  {
+    "Content": "Do czego służy metaadnotacja @Repeatable i jak API refleksji odczytuje wielokrotne wystąpienia tej samej adnotacji?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Wymaga adnotacji kontenerowej",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "B. Pozwala wielokrotnie zastosować ten sam typ adnotacji",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Współpracuje z getAnnotationsByType",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Automatycznie wykonuje metodę wiele razy",
+        "Weight": null,
+        "Correct": false
+      }
+    ]
+  },
+  {
+    "Content": "Które stwierdzenia poprawnie opisują zakres działania metaadnotacji @Inherited dla adnotacji umieszczanych na typach?",
+    "QuestionType": 1,
+    "NumberOfOptions": 4,
+    "Points": 1,
+    "Answers": [
+      {
+        "Content": "A. Działa automatycznie dla implementowanych interfejsów",
+        "Weight": null,
+        "Correct": false
+      },
+      {
+        "Content": "B. Dotyczy wyszukiwania adnotacji na klasach",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "C. Nie powoduje dziedziczenia adnotacji metod",
+        "Weight": null,
+        "Correct": true
+      },
+      {
+        "Content": "D. Wymaga odpowiedniej metaadnotacji na typie adnotacji",
+        "Weight": null,
+        "Correct": true
+      }
+    ]
+  }
+]
